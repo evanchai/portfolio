@@ -1,12 +1,24 @@
 {
   "rewrites": [
     {
+      "source": "/plat",
+      "destination": "https://plat-ning.vercel.app"
+    },
+    {
       "source": "/plat/:path*",
       "destination": "https://plat-ning.vercel.app/:path*"
     },
     {
+      "source": "/museo",
+      "destination": "https://museo-ning.vercel.app"
+    },
+    {
       "source": "/museo/:path*",
       "destination": "https://museo-ning.vercel.app/:path*"
+    },
+    {
+      "source": "/poker",
+      "destination": "https://poker-ning.vercel.app"
     },
     {
       "source": "/poker/:path*",
