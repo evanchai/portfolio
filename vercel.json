@@ -1,0 +1,31 @@
+{
+  "rewrites": [
+    {
+      "source": "/plat/:path*",
+      "destination": "https://plat-ning.vercel.app/:path*"
+    },
+    {
+      "source": "/museo/:path*",
+      "destination": "https://museo-ning.vercel.app/:path*"
+    },
+    {
+      "source": "/poker/:path*",
+      "destination": "https://poker-ning.vercel.app/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    }
+  ]
+}
