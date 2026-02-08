@@ -8,12 +8,18 @@ import './App.css'
 function App() {
   return (
     <div className="app">
+      <div className="geometric-bg">
+        <div className="shard"></div>
+        <div className="shard"></div>
+        <div className="shard"></div>
+      </div>
+
       <Header />
 
       <main className="main">
         <div className="container">
           <section className="projects-section">
-            <h2 className="section-title">Projects</h2>
+            <h2 className="section-title">Vibe Coding Projects</h2>
             <div className="projects-grid">
               {projects.map((project) => (
                 <ProjectCard key={project.slug} project={project} />
