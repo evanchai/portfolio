@@ -275,18 +275,18 @@ body::after {
 /* Main */
 .main {
   flex: 1;
-  padding: 5rem 2rem;
+  padding: 4rem 2rem;
   position: relative;
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 .section-title {
-  font-size: 3rem;
-  margin-bottom: 3rem;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
   text-align: center;
   font-weight: 900;
   text-transform: uppercase;
@@ -313,8 +313,8 @@ body::after {
 .projects-grid {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
-  margin-top: 4rem;
+  gap: 2.5rem;
+  margin-top: 3rem;
 }
 
 /* Project Card */
@@ -322,16 +322,16 @@ body::after {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  padding: 3rem;
+  gap: 2rem;
+  padding: 2rem;
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   text-decoration: none;
   color: inherit;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 40px 100%, 0 calc(100% - 40px));
-  min-height: 350px;
+  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+  min-height: 260px;
   align-items: center;
 }
 
@@ -358,7 +358,7 @@ body::after {
   background: linear-gradient(135deg, var(--card-color), transparent);
   opacity: 0;
   z-index: -1;
-  clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 40px 100%, 0 calc(100% - 40px));
+  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
   transition: opacity 0.4s ease;
 }
 
@@ -397,12 +397,12 @@ body::after {
 .project-card-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .project-emoji {
-  font-size: 4rem;
+  font-size: 2.5rem;
   filter: drop-shadow(0 0 20px var(--card-glow));
 }
 
@@ -414,13 +414,13 @@ body::after {
 
 .project-card:hover .project-link-icon {
   color: var(--card-color);
-  transform: translate(8px, -8px);
+  transform: translate(6px, -6px);
   filter: drop-shadow(0 0 10px var(--card-color));
 }
 
 .project-name {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  margin-bottom: 0.75rem;
   color: var(--text-primary);
   font-weight: 900;
   text-transform: uppercase;
@@ -429,16 +429,16 @@ body::after {
 
 .project-description {
   color: var(--text-secondary);
-  margin-bottom: 1rem;
-  line-height: 1.8;
-  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .project-description-cn {
   color: var(--text-secondary);
-  margin-bottom: 2rem;
-  line-height: 1.8;
-  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+  font-size: 0.85rem;
   opacity: 0.8;
 }
 
@@ -473,10 +473,10 @@ body::after {
 .project-visual {
   position: relative;
   height: 100%;
-  min-height: 280px;
+  min-height: 200px;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   border: 1px solid var(--card-color);
-  clip-path: polygon(20px 0%, 100% 0%, calc(100% - 20px) 100%, 0% 100%);
+  clip-path: polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -490,25 +490,25 @@ body::after {
   background:
     linear-gradient(45deg, transparent 48%, var(--card-color) 48%, var(--card-color) 52%, transparent 52%),
     linear-gradient(-45deg, transparent 48%, var(--card-color) 48%, var(--card-color) 52%, transparent 52%);
-  background-size: 60px 60px;
+  background-size: 50px 50px;
   opacity: 0.05;
   animation: grid-move 20s linear infinite;
 }
 
 @keyframes grid-move {
   0% { transform: translate(0, 0); }
-  100% { transform: translate(60px, 60px); }
+  100% { transform: translate(50px, 50px); }
 }
 
 .project-visual-emoji {
-  font-size: 8rem;
-  filter: drop-shadow(0 0 40px var(--card-glow));
+  font-size: 5rem;
+  filter: drop-shadow(0 0 30px var(--card-glow));
   animation: float-emoji 6s ease-in-out infinite;
 }
 
 @keyframes float-emoji {
   0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-20px) scale(1.05); }
+  50% { transform: translateY(-15px) scale(1.05); }
 }
 
 /* Footer */
@@ -595,11 +595,11 @@ body::after {
   }
 
   .section-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .project-card {
-    padding: 2rem;
+    padding: 1.5rem;
     clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
   }
 
@@ -608,19 +608,19 @@ body::after {
   }
 
   .project-name {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
   }
 
   .project-description {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .project-visual {
-    min-height: 180px;
+    min-height: 150px;
   }
 
   .project-visual-emoji {
-    font-size: 5rem;
+    font-size: 3.5rem;
   }
 }
 
@@ -634,7 +634,7 @@ body::after {
   }
 
   .project-name {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
   .social-link {
