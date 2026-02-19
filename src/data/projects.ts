@@ -11,6 +11,16 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    name: 'aime',
+    slug: 'aime',
+    description: 'AI clone that talks like me',
+    descriptionCN: 'AI 分身 - 基于真实微信聊天记录训练的个人 AI',
+    url: 'https://aime.ning.codes',
+    tech: ['React', 'TypeScript', 'Gemini AI', 'RAG'],
+    color: '#833AB4',
+    emoji: '🤖'
+  },
+  {
     name: 'Plat',
     slug: 'plat',
     description: 'AI-powered menu translation app',
