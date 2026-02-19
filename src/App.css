@@ -311,28 +311,25 @@ body::after {
 
 /* Projects Grid */
 .projects-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
   margin-top: 3rem;
 }
 
 /* Project Card */
 .project-card {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   text-decoration: none;
   color: inherit;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
-  min-height: 260px;
-  align-items: center;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
 }
 
 .project-card::before {
@@ -376,16 +373,8 @@ body::after {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px var(--card-glow);
 }
 
-.project-card:nth-child(even) {
-  grid-template-columns: 1fr 1fr;
-}
-
-.project-card:nth-child(even) .project-card-left {
-  order: 2;
-}
-
-.project-card:nth-child(even) .project-card-right {
-  order: 1;
+.project-card-right {
+  display: none;
 }
 
 .project-card-left,
@@ -402,7 +391,7 @@ body::after {
 }
 
 .project-emoji {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   filter: drop-shadow(0 0 20px var(--card-glow));
 }
 
@@ -419,8 +408,8 @@ body::after {
 }
 
 .project-name {
-  font-size: 1.8rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
   color: var(--text-primary);
   font-weight: 900;
   text-transform: uppercase;
@@ -429,38 +418,39 @@ body::after {
 
 .project-description {
   color: var(--text-secondary);
-  margin-bottom: 0.75rem;
-  line-height: 1.6;
-  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  font-size: 0.85rem;
 }
 
 .project-description-cn {
   color: var(--text-secondary);
-  margin-bottom: 1.25rem;
-  line-height: 1.6;
-  font-size: 0.85rem;
-  opacity: 0.8;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
 
 .project-tech {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  margin-top: auto;
 }
 
 .tech-tag {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.7rem;
   background: var(--bg-primary);
   border: 1px solid var(--card-color);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--card-color);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
   transition: all 0.3s ease;
 }
 
@@ -565,22 +555,6 @@ body::after {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .project-card {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .project-card:nth-child(even) .project-card-left,
-  .project-card:nth-child(even) .project-card-right {
-    order: unset;
-  }
-
-  .project-visual {
-    min-height: 200px;
-  }
-}
-
 @media (max-width: 768px) {
   .header {
     padding: 4rem 1.5rem 3rem;
@@ -598,29 +572,18 @@ body::after {
     font-size: 1.8rem;
   }
 
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
   .project-card {
-    padding: 1.5rem;
-    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    padding: 1.25rem;
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
   }
 
   .project-card::after {
-    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
-  }
-
-  .project-name {
-    font-size: 1.4rem;
-  }
-
-  .project-description {
-    font-size: 0.9rem;
-  }
-
-  .project-visual {
-    min-height: 150px;
-  }
-
-  .project-visual-emoji {
-    font-size: 3.5rem;
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
   }
 }
 
@@ -634,7 +597,7 @@ body::after {
   }
 
   .project-name {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .social-link {
