@@ -87,6 +87,83 @@
     .step-card h4 { font-family: var(--serif); font-weight: 400; font-size: 0.95rem; margin-bottom: 0.3rem; }
     .step-card p { font-size: 0.78rem; color: var(--text-2); line-height: 1.7; margin: 0; }
 
+    /* ── Player Demo ── */
+    .app-preview { margin: 0 0 3rem; }
+    .app-preview-label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-3); margin-bottom: 1rem; }
+
+    .player-demo {
+      max-width: 380px;
+      margin: 0 auto;
+      background: #111114;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #fff;
+    }
+    .demo-now-playing { padding: 20px 20px 0; text-align: center; }
+    .demo-album {
+      width: 160px; height: 160px; border-radius: 12px;
+      background: linear-gradient(135deg, #ff4d6a 0%, #ff6b81 50%, #c44dff 100%);
+      margin: 0 auto 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+      animation: albumPulse 3s ease-in-out infinite;
+    }
+    @keyframes albumPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+    .demo-song-title { font-family: -apple-system, sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+    .demo-artist { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+    .demo-reason { font-size: 10px; color: #ff6b81; font-style: italic; padding: 0 14px; line-height: 1.4; }
+    .demo-controls {
+      display: flex; align-items: center; justify-content: center;
+      gap: 24px; padding: 14px 20px;
+    }
+    .demo-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15); background: transparent;
+      color: rgba(255,255,255,0.7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; cursor: default;
+    }
+    .demo-btn.play {
+      width: 44px; height: 44px;
+      background: var(--coral); border: none; color: #fff; font-size: 18px;
+    }
+    .demo-queue { padding: 0 14px 14px; }
+    .demo-queue-label {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); margin-bottom: 6px; padding: 0 4px;
+    }
+    .demo-queue-item {
+      display: flex; align-items: center; gap: 8px; padding: 6px;
+      border-radius: 8px;
+      opacity: 0; transform: translateY(8px);
+      animation: queueIn 0.4s ease forwards;
+    }
+    .demo-queue-item:nth-child(2) { animation-delay: 0.3s; }
+    .demo-queue-item:nth-child(3) { animation-delay: 0.6s; }
+    @keyframes queueIn { to { opacity: 1; transform: translateY(0); } }
+    .demo-queue-thumb {
+      width: 32px; height: 32px; border-radius: 6px;
+      background: linear-gradient(135deg, rgba(255,77,106,0.3), rgba(196,77,255,0.3));
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+    }
+    .demo-queue-info { flex: 1; min-width: 0; }
+    .demo-queue-song {
+      font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .demo-queue-artist { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+    .demo-caption {
+      text-align: center; margin-top: 1.2rem;
+      font-family: var(--mono); font-size: 0.62rem; color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+    .demo-caption a { color: var(--olive); text-decoration: none; transition: color 0.3s; }
+    .demo-caption a:hover { color: var(--coral); }
+
     .section-divider { border: none; border-top: 1px solid var(--line); margin: 3rem 0; }
 
     .page-footer { border-top: 1px solid var(--line); padding: 1.5rem 0 3rem; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.62rem; color: var(--text-3); letter-spacing: 0.04em; margin-top: 4rem; }
@@ -161,6 +238,57 @@
       <li><a href="#conclusion">Conclusion</a></li>
     </ol>
   </nav>
+
+  <!-- App Preview -->
+  <div class="app-preview rv">
+    <div class="app-preview-label zh">App 预览</div>
+    <div class="app-preview-label en">App Preview</div>
+    <div class="player-demo" id="playerDemo">
+      <div class="demo-now-playing">
+        <div class="demo-album">&#127926;</div>
+        <div class="demo-song-title">Dancing in the Kitchen</div>
+        <div class="demo-artist">LANY</div>
+        <div class="demo-reason zh">"梦幻独立流行，贴合你浪漫放松的氛围"</div>
+        <div class="demo-reason en">"Dreamy indie pop matching your chill, romantic vibe"</div>
+      </div>
+      <div class="demo-controls">
+        <div class="demo-btn">&#9829;</div>
+        <div class="demo-btn">&#9664;&#9664;</div>
+        <div class="demo-btn play">&#9654;</div>
+        <div class="demo-btn">&#9654;&#9654;</div>
+      </div>
+      <div class="demo-queue">
+        <div class="demo-queue-label zh">即将播放</div>
+        <div class="demo-queue-label en">Up Next</div>
+        <div class="demo-queue-item">
+          <div class="demo-queue-thumb">&#127911;</div>
+          <div class="demo-queue-info">
+            <div class="demo-queue-song">Save Your Tears</div>
+            <div class="demo-queue-artist">The Weeknd</div>
+          </div>
+        </div>
+        <div class="demo-queue-item">
+          <div class="demo-queue-thumb">&#127925;</div>
+          <div class="demo-queue-info">
+            <div class="demo-queue-song">Malibu Nights</div>
+            <div class="demo-queue-artist">LANY</div>
+          </div>
+        </div>
+        <div class="demo-queue-item">
+          <div class="demo-queue-thumb">&#127932;</div>
+          <div class="demo-queue-info">
+            <div class="demo-queue-song">Redbone</div>
+            <div class="demo-queue-artist">Childish Gambino</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-caption">
+      <span class="zh">粘贴歌单 → AI 推荐 → 开车听歌 · </span>
+      <span class="en">Paste playlist → AI recommends → Drive & listen · </span>
+      <a href="https://tunes.ning.codes" target="_blank">tunes.ning.codes</a>
+    </div>
+  </div>
 
   <article class="article-body">
 
@@ -501,6 +629,21 @@ const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('v'); obs.unobserve(e.target); } });
 }, { threshold: 0.08 });
 document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+// Replay player demo queue on scroll
+const demoObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.demo-queue-item').forEach(item => {
+        item.style.animation = 'none';
+        item.offsetHeight;
+        item.style.animation = '';
+      });
+    }
+  });
+}, { threshold: 0.3 });
+const playerDemo = document.getElementById('playerDemo');
+if (playerDemo) demoObs.observe(playerDemo);
 
 // Language toggle
 const toggle = document.getElementById('langToggle');
