@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="用一个 LLM 替代整个推荐系统：Tunes 个人音乐推荐系统的从 0 到 1 搭建记录。" />
+  <title>LLM-as-RecSys：从 0 到 1 搭建个人音乐推荐系统 — Ning</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,200;1,9..144,300;1,9..144,400&family=Noto+Sans+SC:wght@200;300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f0ebe4;
+      --bg2: #e7e0d6;
+      --card: #f6f2ec;
+      --text: #2e2b26;
+      --text-2: #6d665c;
+      --text-3: #a69e94;
+      --olive: #5e7050;
+      --olive-light: #7a9469;
+      --olive-bg: rgba(94,112,80,0.07);
+      --line: #d4ccc2;
+      --coral: #ff4d6a;
+      --coral-bg: rgba(255,77,106,0.07);
+      --serif: 'Fraunces', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+    }
+
+    html { height: 100%; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.9;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+    }
+
+    ::selection { background: var(--olive); color: #fff; }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: flex;
+      justify-content: flex-end;
+      padding: 2rem 0 0;
+    }
+
+    .back-link a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-3);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.3s ease;
+    }
+
+    .back-link a:hover { color: var(--olive); }
+
+    /* ── Article Header ── */
+    .article-header {
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 3rem;
+    }
+
+    .article-meta {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .article-header h1 {
+      font-family: var(--serif);
+      font-weight: 200;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
+
+    .article-header h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--olive);
+    }
+
+    .article-lead {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--text-2);
+      max-width: 56ch;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .toc-title {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 1rem;
+    }
+
+    .toc ol {
+      list-style: none;
+      counter-reset: toc;
+    }
+
+    .toc li {
+      counter-increment: toc;
+      padding: 0.2rem 0;
+    }
+
+    .toc li::before {
+      content: counter(toc, decimal-leading-zero);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      margin-right: 0.8rem;
+    }
+
+    .toc a {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .toc a:hover { color: var(--olive); }
+
+    /* ── Article Body ── */
+    .article-body h2 {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: 1.7rem;
+      line-height: 1.3;
+      margin: 3.5rem 0 1rem;
+      padding-top: 1rem;
+    }
+
+    .article-body h2 em { font-style: italic; color: var(--olive); }
+
+    .article-body h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.15rem;
+      margin: 2.5rem 0 0.8rem;
+      color: var(--text);
+    }
+
+    .article-body p {
+      margin-bottom: 1.2rem;
+      color: var(--text-2);
+    }
+
+    .article-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .article-body a {
+      color: var(--olive);
+      text-decoration: underline;
+      text-decoration-color: var(--line);
+      text-underline-offset: 3px;
+      transition: text-decoration-color 0.3s;
+    }
+
+    .article-body a:hover { text-decoration-color: var(--olive); }
+
+    /* ── Inline code ── */
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      background: var(--bg2);
+      border-radius: 4px;
+      padding: 0.15em 0.45em;
+    }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: #2e2b26;
+      color: #e8e0d6;
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.9;
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .code-block .cm { color: #7a7568; }
+    .code-block .kw { color: #a3c486; }
+    .code-block .str { color: #d4a96a; }
+    .code-block .fn { color: #88b4d4; }
+    .code-block .tp { color: #c4a3ff; }
+    .code-block .coral { color: #ffa3b3; }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--olive);
+      border-radius: 0 12px 12px 0;
+      padding: 1.2rem 1.4rem;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.8;
+    }
+
+    .callout.coral { border-left-color: var(--coral); }
+
+    .callout b { color: var(--olive); }
+    .callout.coral b { color: var(--coral); }
+
+    /* ── Diagram / Flow ── */
+    .diagram {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.8rem;
+      margin: 1.5rem 0 2rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-2);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .diagram .hl { color: var(--olive); font-weight: 700; }
+    .diagram .dim { color: var(--text-3); }
+
+    /* ── Comparison Table ── */
+    .article-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.82rem;
+    }
+
+    .article-table th {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 0.9rem;
+      text-align: left;
+      padding: 1rem;
+      border-bottom: 2px solid var(--line);
+      color: var(--text);
+    }
+
+    .article-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--text-2);
+      line-height: 1.7;
+      vertical-align: top;
+    }
+
+    .article-table tr:hover td { background: var(--olive-bg); }
+    .article-table .win { color: var(--olive); font-weight: 700; }
+    .article-table .lose { color: var(--text-3); }
+
+    /* ── Ordered list ── */
+    .article-body ol, .article-body ul {
+      margin: 0.8rem 0 1.5rem 1.5rem;
+      color: var(--text-2);
+    }
+
+    .article-body li {
+      margin-bottom: 0.4rem;
+      padding-left: 0.3rem;
+    }
+
+    /* ── Section divider ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 3rem 0;
+    }
+
+    /* ── Pipeline steps ── */
+    .step-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.4rem 1.5rem;
+      transition: all 0.35s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--olive-light);
+      box-shadow: 0 12px 36px rgba(46,43,38,0.05);
+    }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--olive);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+
+    .step-card h4 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .step-card p {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* ── Key insight boxes ── */
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .insight-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.4rem 1.5rem;
+      transition: all 0.35s ease;
+    }
+
+    .insight-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--olive-light);
+      box-shadow: 0 12px 36px rgba(46,43,38,0.05);
+    }
+
+    .insight-card h4 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .insight-card p {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    /* ── Tags ── */
+    .article-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--olive);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      border-top: 1px solid var(--line);
+      padding: 1.5rem 0 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      margin-top: 4rem;
+    }
+
+    .page-footer .made {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-footer .heart {
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--olive);
+    }
+
+    /* ── Scroll reveal ── */
+    .rv {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .rv.v { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .page { padding: 0 1.2rem; }
+      .article-header { padding: 2rem 0 1.5rem; margin-bottom: 2rem; }
+      .article-header h1 { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+      .article-lead { font-size: 1rem; }
+      .article-body h2 { font-size: 1.4rem; margin-top: 2.5rem; }
+      .step-grid, .insight-grid { grid-template-columns: 1fr; }
+      .article-table { font-size: 0.72rem; }
+      .article-table th, .article-table td { padding: 0.5rem 0.6rem; }
+      .page-footer { flex-direction: column; gap: 0.5rem; }
+      .toc { padding: 1.4rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="back-link">
+    <a href="/">← ning.codes</a>
+  </div>
+
+  <!-- Header -->
+  <header class="article-header rv">
+    <div class="article-meta">
+      <span>Mar 2025</span>
+      <span>Ning</span>
+      <span>~15 min read</span>
+    </div>
+    <h1>LLM-as-RecSys：<br>从 0 到 1 搭建个人<em>音乐推荐</em>系统</h1>
+    <p class="article-lead">
+      不需要协同过滤、不需要 embedding、不需要训练数据。
+      用一个 LLM + 一段 playlist + 持续的听歌行为，就能搭建一个越用越懂你的推荐系统。
+    </p>
+    <div class="article-tags">
+      <span class="article-tag">#ai</span>
+      <span class="article-tag">#recsys</span>
+      <span class="article-tag">#music</span>
+      <span class="article-tag">#vibe-coding</span>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc rv">
+    <div class="toc-title">Table of Contents</div>
+    <ol>
+      <li><a href="#idea">核心理念：为什么用 LLM 做推荐</a></li>
+      <li><a href="#data-model">定义数据模型</a></li>
+      <li><a href="#taste">品味提取：一个 playlist 的信息量</a></li>
+      <li><a href="#engine">推荐引擎：Prompt 就是算法</a></li>
+      <li><a href="#feedback">反馈闭环：让系统越用越聪明</a></li>
+      <li><a href="#playback">播放与搜索</a></li>
+      <li><a href="#persistence">数据持久化：不丢一个反馈</a></li>
+      <li><a href="#prompt-eng">Prompt 工程笔记</a></li>
+      <li><a href="#tradeoffs">Trade-offs：诚实的对比</a></li>
+      <li><a href="#conclusion">总结</a></li>
+    </ol>
+  </nav>
+
+  <!-- Article Body -->
+  <article class="article-body">
+
+    <!-- 1. Core Idea -->
+    <h2 id="idea" class="rv">核心理念：为什么用 LLM 做<em>推荐</em></h2>
+
+    <p class="rv">传统推荐系统的搭建流程：收集大量用户行为数据 → 特征工程 → 训练模型 → 召回 → 排序 → 推荐。这条路对大公司有意义，但对个人项目来说是 overkill。</p>
+
+    <p class="rv">Tunes 的思路完全不同：</p>
+
+    <div class="diagram rv"><span class="dim">传统路线</span>
+用户行为日志 → 特征工程 → 模型训练 → 召回 → 排序 → 推荐
+
+<span class="dim">Tunes 路线</span>
+用户歌单 → <span class="hl">LLM 分析品味</span> → 用户行为 → <span class="hl">注入 prompt</span> → LLM 推荐 → 循环</div>
+
+    <p class="rv">这条路之所以可行，靠的是三个洞察：</p>
+
+    <ol class="rv">
+      <li><strong>LLM 天生具备音乐知识。</strong> Gemini 在训练时已经"见过"海量乐评和歌单，它知道 LANY 的风格接近 The 1975 而不是 Metallica。</li>
+      <li><strong>自然语言是最灵活的特征编码。</strong> 不需要 one-hot encoding 或向量化，直接写 "dreamy indie pop with nostalgic vibes" 比任何 embedding 更精确。</li>
+      <li><strong>Prompt 是实时可调的。</strong> 不需要重新训练，改一行 prompt 就能改变推荐策略。</li>
+    </ol>
+
+    <hr class="section-divider">
+
+    <!-- 2. Data Model -->
+    <h2 id="data-model" class="rv">定义<em>数据模型</em></h2>
+
+    <p class="rv">整个推荐系统只需要三个核心类型。不多也不少。</p>
+
+    <h3 class="rv">TasteProfile — 品味画像</h3>
+
+    <div class="code-block rv"><span class="tp">TasteProfile</span> {
+  <span class="fn">genres</span>:      <span class="str">["Pop", "R&B", "Indie Pop", "Hip-Hop", "C-Pop"]</span>
+  <span class="fn">moods</span>:       <span class="str">["Nostalgic", "Romantic", "Chill", "Melancholy"]</span>
+  <span class="fn">eras</span>:        <span class="str">["2000s", "2010s", "2020s"]</span>
+  <span class="fn">energyLevel</span>: <span class="str">"Medium — mix of chill vibes and upbeat grooves"</span>
+  <span class="fn">summary</span>:     <span class="str">"Multilingual listener with a strong taste for smooth R&B..."</span>
+  <span class="fn">summaryCn</span>:   <span class="str">"多语言听众，偏爱丝滑 R&B、梦幻独立流行..."</span>
+}</div>
+
+    <p class="rv">多维度建模（风格、情绪、年代、能量）比单一标签更精确。自由文本的 <code>summary</code> 让 AI 有空间表达复杂的品味。双语 summary 支持中英文 UI。</p>
+
+    <h3 class="rv">SongFeedback — 隐式反馈</h3>
+
+    <div class="code-block rv"><span class="tp">SongFeedback</span> {
+  <span class="fn">song</span>:              <span class="str">"Dancing in the Kitchen"</span>
+  <span class="fn">artist</span>:            <span class="str">"LANY"</span>
+  <span class="fn">listenDurationSec</span>: <span class="str">240</span>   <span class="cm">// 实际听了多久</span>
+  <span class="fn">songDurationSec</span>:   <span class="str">240</span>   <span class="cm">// 歌曲总时长</span>
+  <span class="fn">liked</span>:             <span class="str">true</span>  <span class="cm">// 是否点了红心</span>
+}</div>
+
+    <div class="callout rv">
+      <b>设计原则：</b>不做显式评分（1-5 星），完全依赖隐式信号。收听时长占比是核心信号：<code>&ge;50%</code> = 喜欢，<code>&lt;50%</code> = 跳过。<code>liked</code> 是额外的强信号。零摩擦的数据采集。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 3. Taste Extraction -->
+    <h2 id="taste" class="rv">品味提取：一个 playlist 的<em>信息量</em></h2>
+
+    <p class="rv">用户的输入极其简单——从 Spotify、Apple Music 或 YouTube Music 复制粘贴自己的歌单。文本可能很乱，格式各异。AI 负责从中解析。</p>
+
+    <p class="rv">初始化时，一次 Gemini 调用同时完成两件事：分析品味 + 生成推荐。关键技术是 <strong>Structured Output</strong>——用 <code>responseSchema</code> 强制约束输出格式：</p>
+
+    <div class="code-block rv"><span class="cm">// Gemini API 调用配置</span>
+<span class="kw">const</span> response = <span class="kw">await</span> ai.models.<span class="fn">generateContent</span>({
+  model: <span class="str">"gemini-2.0-flash"</span>,
+  contents: prompt,
+  config: {
+    responseMimeType: <span class="str">"application/json"</span>,
+    responseSchema: RECOMMEND_SCHEMA,  <span class="cm">// 强制输出结构</span>
+    temperature: <span class="coral">0.9</span>,                  <span class="cm">// 高创造性</span>
+    maxOutputTokens: <span class="coral">4096</span>,
+  },
+});</div>
+
+    <div class="callout coral rv">
+      <b>为什么 temperature = 0.9？</b> 推荐系统需要多样性。太低的话 AI 每次推荐相同的"安全"歌曲。0.9 在保持相关性的同时引入足够的随机性——像一个有品味但不无聊的 DJ。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 4. Recommendation Engine -->
+    <h2 id="engine" class="rv">推荐引擎：Prompt 就是<em>算法</em></h2>
+
+    <p class="rv">核心创新在于：把用户行为数据直接编码成自然语言，注入到 prompt 中。这让一个无状态的 LLM 变成了有状态的推荐引擎。</p>
+
+    <div class="code-block rv"><span class="cm">// 自适应 Prompt 的核心结构</span>
+
+<span class="kw">TASTE PROFILE:</span>
+- Genres: Pop, R&B, Indie Pop, Synth-Pop, C-Pop
+- Moods: Nostalgic, Romantic, Chill
+- Energy: Medium — mix of chill vibes and upbeat grooves
+
+<span class="kw">SONGS THEY ENJOYED</span> (listened longer):
+  <span class="str">"LANY - Dancing in the Kitchen"</span> (240s/240s, liked)
+  <span class="str">"The Weeknd - Save Your Tears"</span> (200s/220s)
+
+<span class="kw">SONGS THEY SKIPPED:</span>
+  <span class="str">"Unknown - Sad Indie Ballad"</span> (45s/200s)
+
+<span class="kw">ALREADY PLAYED</span> (do NOT repeat these):
+  LANY - Malibu Nights
+  Coldplay - Hymn For The Weekend
+  <span class="cm">... 50+ songs</span>
+
+<span class="kw">INSTRUCTIONS:</span>
+  1. Keep the existing taste profile (return it unchanged)
+  2. Recommend 10 NEW songs:
+     - Songs they enjoyed → <span class="fn">recommend more like those</span>
+     - Songs they skipped → <span class="fn">avoid that style/mood</span>
+  3. Do NOT repeat any already played songs</div>
+
+    <p class="rv">注意几个关键设计：</p>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>Profile 不可变</h4>
+        <p>Taste profile 提取一次后就不再更新。如果让 AI 每轮修改 profile，会导致「品味漂移」——连续跳几首慢歌，"Chill" 标签就会消失。行为调节靠 feedback，不靠改 profile。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>完整播放列表</h4>
+        <p>把所有已播放歌曲都传进 prompt。试过只传最近 N 首，但 AI 有时会推荐 20 首之前播放过的。对个人使用（&lt;100 首），token 成本可忽略。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>时长比例是信号</h4>
+        <p><code>(240s/240s, liked)</code> 比单纯 "enjoyed" 信息量大得多。AI 能区分"听完了"和"听完了还点赞"。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>容错设计</h4>
+        <p>当 <code>songDurationSec === 0</code>（YouTube 偶尔不报告时长）时，默认归类为"喜欢"。False positive 比 false negative 伤害小。</p>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 5. Feedback Loop -->
+    <h2 id="feedback" class="rv">反馈闭环：让系统<em>越用越聪明</em></h2>
+
+    <p class="rv">推荐系统的价值不在首次推荐，而在持续学习。Tunes 的反馈闭环完全自动化——用户只需要正常听歌。</p>
+
+    <div class="diagram rv"><span class="hl">完整循环</span>
+
+1. 用户听歌 → YouTube 播放器报告事件
+2. 歌曲结束 or 用户点 Next → <span class="hl">recordFeedback()</span>
+3. feedback 记录: 时长、是否 liked
+4. 队列剩余 &lt; 10 首 → 自动触发 <span class="hl">fetchMore()</span>
+5. Gemini 收到: profile + feedback + played list
+6. 返回 10 首新歌 → 加入队列
+7. 回到步骤 1
+
+<span class="dim">用户感知：无缝连续播放，越听越对味</span></div>
+
+    <h3 class="rv">50% 阈值的由来</h3>
+
+    <p class="rv">反馈分类的阈值经过实际使用校准：</p>
+
+    <ul class="rv">
+      <li><strong>&lt; 30%</strong>：太严格。很多"听了一半觉得还行"的歌被算成跳过</li>
+      <li><strong>50%</strong>：直觉上"听了一半"说明至少不讨厌。实测效果最好</li>
+      <li><strong>&gt; 70%</strong>：太宽松。有些歌只是来不及跳过就被算成喜欢</li>
+    </ul>
+
+    <h3 class="rv">队列预取</h3>
+
+    <p class="rv">当队列剩余不足 10 首时，自动触发新的 Gemini 调用。用户永远不需要等——下一批歌在当前批次播放时就已准备好。阈值设为 10 而非更低，是为了给 Gemini ~2s 的响应时间留余量。</p>
+
+    <hr class="section-divider">
+
+    <!-- 6. Playback -->
+    <h2 id="playback" class="rv">播放与<em>搜索</em></h2>
+
+    <p class="rv">Gemini 返回的每首歌都带有一个 <code>searchQuery</code>（格式 "Artist - Song Title"）。播放前需要解析为 YouTube 视频 ID。</p>
+
+    <div class="step-grid">
+      <div class="step-card rv">
+        <div class="step-num">STEP 01</div>
+        <h4>YouTube Data API 搜索</h4>
+        <p>发送 searchQuery，限定 <code>videoCategoryId: "10"</code>（音乐）+ <code>videoEmbeddable: true</code>，取第一个结果。</p>
+      </div>
+      <div class="step-card rv">
+        <div class="step-num">STEP 02</div>
+        <h4>缓存 videoId</h4>
+        <p>首次解析后把 videoId 写回 song 对象。后续重播直接使用，不重复调 API。</p>
+      </div>
+      <div class="step-card rv">
+        <div class="step-num">STEP 03</div>
+        <h4>IFrame 播放</h4>
+        <p>用 YouTube IFrame API 创建播放器，监听 <code>onStateChange</code> 事件获取播放状态和时长。</p>
+      </div>
+      <div class="step-card rv">
+        <div class="step-num">STEP 04</div>
+        <h4>采集反馈</h4>
+        <p>播放完毕（ENDED 事件）或用户主动跳过时，记录 <code>listenDurationSec</code> 和 <code>songDurationSec</code>。</p>
+      </div>
+    </div>
+
+    <div class="callout rv">
+      <b>为什么不用 Spotify API？</b> Spotify Web Playback 需要 Premium 账号 + OAuth 授权流程。YouTube 免费、覆盖率接近 100%、IFrame API 事件系统完善。对个人项目来说是更务实的选择。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 7. Persistence -->
+    <h2 id="persistence" class="rv">数据持久化：不丢一个<em>反馈</em></h2>
+
+    <p class="rv">驾驶场景意味着随时可能断网、锁屏、关闭 app。同步策略必须足够健壮。</p>
+
+    <h3 class="rv">Redis 数据结构</h3>
+
+    <div class="code-block rv"><span class="cm">// 每个用户一个 key</span>
+tunes:user:{email} → {
+  <span class="fn">feedback</span>:     SongFeedback[]       <span class="cm">// 所有听歌反馈</span>
+  <span class="fn">played</span>:      string[]             <span class="cm">// 已播放歌曲</span>
+  <span class="fn">liked</span>:       string[]             <span class="cm">// 收藏歌曲</span>
+  <span class="fn">cachedQueue</span>: RecommendedSong[]    <span class="cm">// 待播放队列（跨会话）</span>
+  <span class="fn">lastPrompt</span>:  string               <span class="cm">// debug: 最后一次 prompt</span>
+  <span class="fn">lastResponse</span>: string              <span class="cm">// debug: 最后一次 AI 响应</span>
+}</div>
+
+    <h3 class="rv">三重保存策略</h3>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>防抖保存</h4>
+        <p>每次反馈事件触发 2 秒防抖计时器。快速连续跳过会批量合并为一次 Redis 写入。高效且不丢数据。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>visibilitychange</h4>
+        <p>切换 tab 或锁屏时立即保存。覆盖「手机放进口袋」场景。不受防抖影响。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>sendBeacon 兜底</h4>
+        <p>在 <code>beforeunload</code> 时用 <code>navigator.sendBeacon()</code> 发送最终保存。即使页面正在销毁也能送达。Token 放在 body 里（sendBeacon 不支持自定义 headers）。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>队列缓存</h4>
+        <p>待播放列表持久化到 Redis。下次打开直接从缓存加载——不需要等 Gemini 调用就能开始播放。</p>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 8. Prompt Engineering -->
+    <h2 id="prompt-eng" class="rv">Prompt 工程<em>笔记</em></h2>
+
+    <h3 class="rv">Prompt 结构</h3>
+
+    <div class="diagram rv"><span class="hl">[角色设定]</span> → 你是音乐专家 DJ，专精驾驶歌单
+<span class="hl">[品味画像]</span> → TasteProfile 的所有字段
+<span class="hl">[行为数据]</span> → 喜欢的歌（带时长）+ 跳过的歌（带时长）
+<span class="hl">[黑名单]</span>   → 完整的已播放列表
+<span class="hl">[指令]</span>     → 推荐规则 + 约束条件</div>
+
+    <h3 class="rv">实践中踩过的坑</h3>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>不要让 AI 更新 profile</h4>
+        <p>会导致品味漂移。连续跳过几首慢歌 → "Chill" 标签消失 → 再也推不出慢歌。Profile 应该是锚点。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>不要用 temperature=0</h4>
+        <p>推荐会变得极度单调——每次都推相同风格的歌。0.9 是甜蜜点：多样但不跑偏。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>不要省略 already played</h4>
+        <p>AI 没有跨调用的记忆。不传完整播放列表，第 3 轮就开始重复推荐第 1 轮的歌。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>指令不要太细</h4>
+        <p>"必须包含一首 2000 年代的歌" 之类的硬规则会让推荐变得机械。最后一句 "Adapt and surprise them" 更有效。</p>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 9. Tradeoffs -->
+    <h2 id="tradeoffs" class="rv">Trade-offs：<em>诚实的</em>对比</h2>
+
+    <p class="rv">用 LLM 做推荐引擎是非常规的路线。以下是诚实的优劣对比：</p>
+
+    <table class="article-table rv">
+      <thead>
+        <tr>
+          <th>维度</th>
+          <th>LLM 方案 (Tunes)</th>
+          <th>传统推荐系统</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>冷启动</td>
+          <td class="win">零——一个歌单即可</td>
+          <td class="lose">需要大量用户数据</td>
+        </tr>
+        <tr>
+          <td>训练数据</td>
+          <td class="win">不需要</td>
+          <td class="lose">需要海量交互日志</td>
+        </tr>
+        <tr>
+          <td>可解释性</td>
+          <td class="win">自然语言推荐理由</td>
+          <td class="lose">不透明的相似度分数</td>
+        </tr>
+        <tr>
+          <td>实时适应</td>
+          <td class="win">通过 prompt 上下文</td>
+          <td class="lose">需要重训模型</td>
+        </tr>
+        <tr>
+          <td>延迟</td>
+          <td class="lose">~2s / 批次</td>
+          <td class="win">亚毫秒查询</td>
+        </tr>
+        <tr>
+          <td>一致性</td>
+          <td class="lose">非确定性 (temp=0.9)</td>
+          <td class="win">可复现排序</td>
+        </tr>
+        <tr>
+          <td>成本</td>
+          <td class="lose">按调用计费</td>
+          <td class="win">固定基础设施成本</td>
+        </tr>
+        <tr>
+          <td>音乐知识</td>
+          <td class="win">内置世界知识</td>
+          <td class="lose">只知道训练数据中的歌</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout coral rv">
+      <b>结论：</b>对于单用户的个人工具，LLM 方案全面碾压。零基础设施、即时冷启动、自然语言反馈。延迟、成本、非确定性等劣势只有在服务百万用户时才成为问题——而这不是 Tunes 的目标。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 10. Conclusion -->
+    <h2 id="conclusion" class="rv"><em>总结</em></h2>
+
+    <p class="rv">Tunes 的核心公式：</p>
+
+    <div class="diagram rv"><span class="hl">好的推荐</span> = 精准的品味画像
+          + 实时的行为反馈
+          + 高创造性的 LLM</div>
+
+    <p class="rv">传统推荐系统的复杂性——协同过滤、embedding、特征工程、模型训练——在个人场景下全部是过度工程。</p>
+
+    <p class="rv">一个好的 prompt、一个结构化输出 schema、一个行为反馈闭环。三个组件，四个 API 端点，零 ML 基础设施。就这些。</p>
+
+    <p class="rv">如果你也想搭一个自己的推荐系统，不要从 TensorFlow 开始。从一个 prompt 开始。</p>
+
+    <div class="callout rv">
+      <b>Try it:</b> <a href="https://tunes.ning.codes" target="_blank">tunes.ning.codes</a> · <a href="/showcase.html">Technical Showcase</a>
+    </div>
+
+  </article>
+
+  <footer class="page-footer">
+    <span>&copy; 2025 Ning</span>
+    <span class="made"><span class="heart"></span> vibed into existence</span>
+  </footer>
+</div>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('v');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

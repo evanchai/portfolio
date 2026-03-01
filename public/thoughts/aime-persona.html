@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="不靠微调，只靠统计分析 + Prompt 工程：如何让 AI 学会一个真人的聊天风格。" />
+  <title>让 AI 学会真人聊天：从微信记录到 Persona Chatbot — Ning</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,200;1,9..144,300;1,9..144,400&family=Noto+Sans+SC:wght@200;300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f0ebe4;
+      --bg2: #e7e0d6;
+      --card: #f6f2ec;
+      --text: #2e2b26;
+      --text-2: #6d665c;
+      --text-3: #a69e94;
+      --olive: #5e7050;
+      --olive-light: #7a9469;
+      --olive-bg: rgba(94,112,80,0.07);
+      --line: #d4ccc2;
+      --serif: 'Fraunces', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+    }
+
+    html { height: 100%; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.9;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+    }
+
+    ::selection { background: var(--olive); color: #fff; }
+
+    .page { max-width: 720px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── Back link ── */
+    .back-link {
+      display: flex;
+      justify-content: flex-end;
+      padding: 2rem 0 0;
+    }
+
+    .back-link a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-3);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.3s ease;
+    }
+
+    .back-link a:hover { color: var(--olive); }
+
+    /* ── Article Header ── */
+    .article-header {
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 3rem;
+    }
+
+    .article-meta {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .article-header h1 {
+      font-family: var(--serif);
+      font-weight: 200;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
+
+    .article-header h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--olive);
+    }
+
+    .article-lead {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--text-2);
+      max-width: 56ch;
+    }
+
+    .article-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--olive);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .toc-title {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 1rem;
+    }
+
+    .toc ol { list-style: none; counter-reset: toc; }
+
+    .toc li { counter-increment: toc; padding: 0.2rem 0; }
+
+    .toc li::before {
+      content: counter(toc, decimal-leading-zero);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      margin-right: 0.8rem;
+    }
+
+    .toc a {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .toc a:hover { color: var(--olive); }
+
+    /* ── Article Body ── */
+    .article-body h2 {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: 1.7rem;
+      line-height: 1.3;
+      margin: 3.5rem 0 1rem;
+      padding-top: 1rem;
+    }
+
+    .article-body h2 em { font-style: italic; color: var(--olive); }
+
+    .article-body h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.15rem;
+      margin: 2.5rem 0 0.8rem;
+      color: var(--text);
+    }
+
+    .article-body p { margin-bottom: 1.2rem; color: var(--text-2); }
+    .article-body strong { color: var(--text); font-weight: 500; }
+
+    .article-body a {
+      color: var(--olive);
+      text-decoration: underline;
+      text-decoration-color: var(--line);
+      text-underline-offset: 3px;
+      transition: text-decoration-color 0.3s;
+    }
+
+    .article-body a:hover { text-decoration-color: var(--olive); }
+
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      background: var(--bg2);
+      border-radius: 4px;
+      padding: 0.15em 0.45em;
+    }
+
+    .article-body ol, .article-body ul {
+      margin: 0.8rem 0 1.5rem 1.5rem;
+      color: var(--text-2);
+    }
+
+    .article-body li { margin-bottom: 0.4rem; padding-left: 0.3rem; }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: #2e2b26;
+      color: #e8e0d6;
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.9;
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .code-block .cm { color: #7a7568; }
+    .code-block .kw { color: #a3c486; }
+    .code-block .str { color: #d4a96a; }
+    .code-block .fn { color: #88b4d4; }
+    .code-block .tp { color: #c4a3ff; }
+    .code-block .num { color: #ffa3b3; }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--olive);
+      border-radius: 0 12px 12px 0;
+      padding: 1.2rem 1.4rem;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.8;
+    }
+
+    .callout b { color: var(--olive); }
+
+    /* ── Diagram ── */
+    .diagram {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.8rem;
+      margin: 1.5rem 0 2rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-2);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .diagram .hl { color: var(--olive); font-weight: 700; }
+    .diagram .dim { color: var(--text-3); }
+
+    /* ── Table ── */
+    .article-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.82rem;
+    }
+
+    .article-table th {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 0.9rem;
+      text-align: left;
+      padding: 1rem;
+      border-bottom: 2px solid var(--line);
+      color: var(--text);
+    }
+
+    .article-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--text-2);
+      line-height: 1.7;
+      vertical-align: top;
+    }
+
+    .article-table tr:hover td { background: var(--olive-bg); }
+
+    /* ── Insight cards ── */
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .insight-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.4rem 1.5rem;
+      transition: all 0.35s ease;
+    }
+
+    .insight-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--olive-light);
+      box-shadow: 0 12px 36px rgba(46,43,38,0.05);
+    }
+
+    .insight-card h4 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .insight-card p {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.2rem;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--olive-light);
+      transform: translateY(-2px);
+    }
+
+    .stat-val {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: var(--olive);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-top: 0.4rem;
+    }
+
+    /* ── Section divider ── */
+    .section-divider { border: none; border-top: 1px solid var(--line); margin: 3rem 0; }
+
+    /* ── Footer ── */
+    .page-footer {
+      border-top: 1px solid var(--line);
+      padding: 1.5rem 0 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      margin-top: 4rem;
+    }
+
+    .page-footer .made { display: flex; align-items: center; gap: 0.5rem; }
+    .page-footer .heart { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--olive); }
+
+    /* ── Scroll reveal ── */
+    .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .rv.v { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .page { padding: 0 1.2rem; }
+      .article-header { padding: 2rem 0 1.5rem; margin-bottom: 2rem; }
+      .article-header h1 { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+      .article-lead { font-size: 1rem; }
+      .article-body h2 { font-size: 1.4rem; margin-top: 2.5rem; }
+      .insight-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .article-table { font-size: 0.72rem; }
+      .article-table th, .article-table td { padding: 0.5rem 0.6rem; }
+      .page-footer { flex-direction: column; gap: 0.5rem; }
+      .toc { padding: 1.4rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="back-link">
+    <a href="/">← ning.codes</a>
+  </div>
+
+  <!-- Header -->
+  <header class="article-header rv">
+    <div class="article-meta">
+      <span>Feb 2025</span>
+      <span>Ning</span>
+      <span>~12 min read</span>
+    </div>
+    <h1>让 AI 学会真人聊天：<br>从微信记录到 <em>Persona</em> Chatbot</h1>
+    <p class="article-lead">
+      不靠微调，不靠 fine-tuning，只靠统计分析 8000+ 条真实聊天记录，
+      把一个人的说话习惯量化成数字，然后编码进 system prompt。
+      结果是一个连朋友都分不清真假的聊天机器人。
+    </p>
+    <div class="article-tags">
+      <span class="article-tag">#ai</span>
+      <span class="article-tag">#chatbot</span>
+      <span class="article-tag">#prompt-engineering</span>
+      <span class="article-tag">#vibe-coding</span>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc rv">
+    <div class="toc-title">Table of Contents</div>
+    <ol>
+      <li><a href="#idea">核心理念：数据驱动的 Persona</a></li>
+      <li><a href="#pipeline">训练 Pipeline：从微信到 Prompt</a></li>
+      <li><a href="#style">统计分析：量化一个人的聊天风格</a></li>
+      <li><a href="#prompt">System Prompt 的结构</a></li>
+      <li><a href="#runtime">运行时架构</a></li>
+      <li><a href="#multi-bubble">多消息回复：模拟真实聊天节奏</a></li>
+      <li><a href="#rag">RAG 分析：值不值得用？</a></li>
+      <li><a href="#review">Review 系统：闭环反馈</a></li>
+      <li><a href="#boundaries">安全边界</a></li>
+      <li><a href="#conclusion">总结</a></li>
+    </ol>
+  </nav>
+
+  <!-- Article Body -->
+  <article class="article-body">
+
+    <!-- 1 -->
+    <h2 id="idea" class="rv">核心理念：<em>数据驱动</em>的 Persona</h2>
+
+    <p class="rv">市面上的 persona chatbot 大多靠手写 prompt："你是一个友善的助手，说话风格活泼…"。这种方式有一个本质问题——<strong>你怎么定义"活泼"？</strong></p>
+
+    <p class="rv">Aime 的做法不一样。它不描述风格，它<strong>测量</strong>风格：</p>
+
+    <div class="diagram rv"><span class="dim">传统路线</span>
+人工描述性格 → 手写 prompt → 祈祷 AI 理解
+
+<span class="dim">Aime 路线</span>
+微信聊天记录 → <span class="hl">统计分析 7 个维度</span> → 量化数字编码进 prompt
+                     ↓
+               <span class="hl">挑选 20 条代表性对话</span> → few-shot examples</div>
+
+    <p class="rv">具体来说：不说"你说话很短"，而是说"你的消息平均 14.2 个字，44.4% 在 10 字以内"。不说"你偶尔用 emoji"，而是说"18.2% 的消息包含 emoji，最常用的是 😂😭🤮🙄😏"。</p>
+
+    <div class="callout rv">
+      <b>关键洞察：</b>LLM 对数字的遵从度远高于形容词。"平均 14 个字"比"简短"精确 10 倍，AI 也更容易执行。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 2 -->
+    <h2 id="pipeline" class="rv">训练 Pipeline：从微信到 <em>Prompt</em></h2>
+
+    <p class="rv">整个流程不涉及任何模型训练。五个脚本，跑一遍就好。</p>
+
+    <div class="diagram rv"><span class="hl">Step 1</span>  微信 HTML 导出  ──→  parse_wechat.py  ──→  chat_pairs.jsonl
+<span class="hl">Step 2</span>  chat_pairs.jsonl  ──→  analyze_style.py ──→  style_analysis.json
+<span class="hl">Step 3</span>  chat_pairs.jsonl  ──→  build_vectordb.py ──→ vectors.npz <span class="dim">(RAG 用)</span>
+<span class="hl">Step 4</span>  style + QA 问卷   ──→  prompt_builder.py ──→ system prompt
+<span class="hl">Step 5</span>  system prompt      ──→  chat_engine.py    ──→ 部署上线</div>
+
+    <h3 class="rv">Step 1：解析微信记录</h3>
+
+    <p class="rv">微信聊天记录通过 WeChatExporter 导出为 HTML。解析面临几个挑战：</p>
+
+    <ul class="rv">
+      <li><strong>分页加载</strong>：首页约 1000 条消息，剩余在 JS 文件中（<code>msg-1.js</code>, <code>msg-2.js</code>…）</li>
+      <li><strong>Emoji 标签</strong>：微信 emoji 是 <code>&lt;img class="wxemoji"&gt;</code> 标签，需要转成 Unicode</li>
+      <li><strong>连续消息合并</strong>：同一个人 2 分钟内的多条消息合并为一条（模拟微信多行发送）</li>
+      <li><strong>上下文对</strong>：提取 (context, response) 对——每条回复配最多 5 条前文</li>
+    </ul>
+
+    <h3 class="rv">Step 2：统计风格分析</h3>
+
+    <p class="rv">这是整个系统的灵魂。下一节详细展开。</p>
+
+    <h3 class="rv">Step 3：构建向量库（可选）</h3>
+
+    <p class="rv">用 Gemini Embedding API 把所有对话对转成 768 维向量，存为 <code>.npz</code> 文件。运行时做余弦相似度检索。Python 版本用到，Web 版本没用。</p>
+
+    <hr class="section-divider">
+
+    <!-- 3 -->
+    <h2 id="style" class="rv">统计分析：<em>量化</em>一个人的聊天风格</h2>
+
+    <p class="rv">从 8394 条真实消息中提取 7 个维度的统计数据：</p>
+
+    <div class="stats-row rv">
+      <div class="stat-card">
+        <div class="stat-val">14.2</div>
+        <div class="stat-label">Avg Length</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">97%</div>
+        <div class="stat-label">No Punctuation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">18.2%</div>
+        <div class="stat-label">Emoji Usage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">29.3%</div>
+        <div class="stat-label">Mixed Language</div>
+      </div>
+    </div>
+
+    <table class="article-table rv">
+      <thead>
+        <tr><th>维度</th><th>分析内容</th><th>实际数据</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>消息长度</td><td>平均字数、短/中/长占比</td><td>平均 14.2 字，44.4% &lt; 10 字</td></tr>
+        <tr><td>标点习惯</td><td>各标点出现率、无标点率</td><td>97% 不加标点</td></tr>
+        <tr><td>口头禅</td><td>Top 15 高频词及出现次数</td><td>哈哈(342)、嗯(128)、kk...</td></tr>
+        <tr><td>Emoji</td><td>使用率、Top 10 微信/Unicode emoji</td><td>18.2% 含 emoji，最爱 😂😭🤮</td></tr>
+        <tr><td>换行倾向</td><td>多行消息占比</td><td>经常拆成多条短消息发送</td></tr>
+        <tr><td>中英混杂</td><td>纯中/纯英/混杂比例</td><td>29.3% 混杂中英文</td></tr>
+        <tr><td>风格总结</td><td>AI 生成的整体描述</td><td>偏短句型、随意、不拘小节</td></tr>
+      </tbody>
+    </table>
+
+    <p class="rv">这些数字直接编码进 system prompt。AI 看到"平均 14.2 字"就知道不该输出长段落，看到"97% 无标点"就自然省略句号。</p>
+
+    <h3 class="rv">代表性对话挑选</h3>
+
+    <p class="rv">从几千条对话中挑出 20 条作为 few-shot examples，策略是三分法：</p>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>1/3 口头禅对话</h4>
+        <p>包含高频词（哈哈、嗯、kk）的消息，展示最典型的说话习惯。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>1/3 长度均衡</h4>
+        <p>短/中/长消息各取一些，让 AI 知道不同场景该回多少字。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>1/3 随机采样</h4>
+        <p>填补剩余名额，增加多样性，避免 examples 太偏向某种话题。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>格式化输出</h4>
+        <p>每条 example 带上下文，格式：<code>朋友(小屎蛋儿): xxx → 你: xxx</code>，让 AI 理解对话节奏。</p>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 4 -->
+    <h2 id="prompt" class="rv">System Prompt 的<em>结构</em></h2>
+
+    <p class="rv">最终的 system prompt 约 4000 字，由 6 个模块组成：</p>
+
+    <div class="diagram rv"><span class="hl">[身份设定]</span>    你是柴宁，不是 AI 助手，你就是柴宁本人在微信聊天
+<span class="hl">[个人信息]</span>    年龄（动态计算）、职业、所在地、家庭、兴趣
+<span class="hl">[性格特征]</span>    幽默、自嘲、有主见、喜欢组局、大方
+<span class="hl">[说话风格]</span>    统计数据：长度、标点、口头禅、emoji、中英混杂
+<span class="hl">[对话示例]</span>    20 条代表性对话（带上下文）
+<span class="hl">[安全边界]</span>    隐私保护、公司信息、法律合规</div>
+
+    <h3 class="rv">动态时间注入</h3>
+
+    <p class="rv">System prompt <strong>每次请求都重新生成</strong>，注入当前时间和计算后的年龄：</p>
+
+    <div class="code-block rv"><span class="cm">// 每次 API 调用都重新计算</span>
+<span class="kw">const</span> now = <span class="kw">new</span> Date()
+<span class="kw">const</span> year = now.toLocaleDateString(<span class="str">"zh-CN"</span>, {
+  timeZone: <span class="str">"America/Los_Angeles"</span>,
+  year: <span class="str">"numeric"</span>
+})
+<span class="kw">const</span> age = Number(year) - <span class="num">1994</span>
+
+<span class="cm">// 注入 prompt</span>
+<span class="str">`【当前真实时间：${dateStr} ${timeStr} 太平洋时间。】`</span></div>
+
+    <p class="rv">这样 AI 永远不会说错自己的年龄或搞错当前时间。</p>
+
+    <h3 class="rv">双模式设计</h3>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>闲聊模式（默认）</h4>
+        <p>短消息、口语化、带口头禅。5-20 字一条，可能拆成 2-3 条发送。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>知识模式</h4>
+        <p>触发条件：技术问题、专业话题。允许更长回复，但保持个人语气。</p>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 5 -->
+    <h2 id="runtime" class="rv">运行时<em>架构</em></h2>
+
+    <p class="rv">从用户发送消息到收到回复，经历以下流程：</p>
+
+    <div class="diagram rv"><span class="hl">用户输入</span> → React 前端
+       ↓
+<span class="hl">/api/chat</span> → Vercel Function
+       ↓
+  1. 动态生成 system prompt（含当前时间/年龄）
+  2. 格式化最近 20 条历史消息
+  3. 如有更早消息，注入系统提示："之前还有 N 条消息"
+       ↓
+<span class="hl">Gemini 2.0 Flash</span> → maxOutputTokens: 128, temperature: 0.8
+       ↓
+  4. 拆分多行回复（按换行符）
+  5. 过滤 [Emoji] 占位符
+  6. 限制最多 3 条消息
+       ↓
+<span class="hl">前端显示</span> → 每条消息加 typing delay
+       ↓
+<span class="hl">Redis</span> → 异步保存（不阻塞响应），90 天 TTL</div>
+
+    <h3 class="rv">关键参数</h3>
+
+    <table class="article-table rv">
+      <thead>
+        <tr><th>参数</th><th>值</th><th>原因</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>maxOutputTokens</td><td>128</td><td>强制短回复，模拟微信消息长度</td></tr>
+        <tr><td>temperature</td><td>0.8</td><td>自然但不跑偏——闲聊需要随机性</td></tr>
+        <tr><td>上下文窗口</td><td>20 条</td><td>平衡连贯性与 token 成本</td></tr>
+        <tr><td>最大回复条数</td><td>3</td><td>模拟微信多条消息，但不过度</td></tr>
+        <tr><td>Redis TTL</td><td>90 天</td><td>够用于 review，不会无限膨胀</td></tr>
+      </tbody>
+    </table>
+
+    <hr class="section-divider">
+
+    <!-- 6 -->
+    <h2 id="multi-bubble" class="rv">多消息回复：模拟真实<em>聊天节奏</em></h2>
+
+    <p class="rv">真人在微信聊天不会一次发一大段。会拆成 2-3 条短消息，中间有自然的打字间隔。Aime 完整模拟了这个行为。</p>
+
+    <h3 class="rv">后端：拆分回复</h3>
+
+    <div class="code-block rv"><span class="cm">// Gemini 输出按换行符拆分</span>
+<span class="kw">const</span> replies = raw
+  .<span class="fn">split</span>(<span class="str">"\n"</span>)
+  .<span class="fn">map</span>(line => line.trim())
+  .<span class="fn">filter</span>(line => line.length > <span class="num">0</span>)
+  .<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">3</span>)
+
+<span class="cm">// 至少返回一条消息</span>
+<span class="kw">const</span> finalReplies = replies.length > <span class="num">0</span> ? replies : [<span class="str">"嗯"</span>]</div>
+
+    <h3 class="rv">前端：模拟打字延迟</h3>
+
+    <div class="code-block rv"><span class="cm">// 每条消息的延迟与长度成正比</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < replies.length; i++) {
+  <span class="kw">const</span> delay = Math.<span class="fn">min</span>(<span class="num">400</span> + replies[i].length * <span class="num">80</span>, <span class="num">2500</span>)
+  <span class="kw">await new</span> Promise(r => <span class="fn">setTimeout</span>(r, delay))
+  <span class="fn">addMessage</span>(replies[i])
+}
+
+<span class="cm">// "哈哈" (2字) → 560ms delay</span>
+<span class="cm">// "我觉得这个方案可以" (8字) → 1040ms delay</span>
+<span class="cm">// 一大段话 → 最多 2500ms</span></div>
+
+    <p class="rv">加上前端的 typing indicator（三个跳动的点），整个体验非常接近真人发消息。</p>
+
+    <hr class="section-divider">
+
+    <!-- 7 -->
+    <h2 id="rag" class="rv">RAG 分析：<em>值不值得</em>用？</h2>
+
+    <p class="rv">Python 版本包含完整的 RAG pipeline——向量化 5000+ 条历史对话，运行时检索最相似的 5 条作为参考。但 Web 版本没有用。为什么？</p>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>RAG 有帮助的场景</h4>
+        <p><strong>小众话题。</strong> 比如用户问到特定的共同回忆、小众梗或罕见口头禅，静态 prompt 覆盖不到，RAG 能从历史中检索到相关对话。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>RAG 过度工程的场景</h4>
+        <p><strong>日常闲聊。</strong> 统计风格规则已经能处理 90% 的常见对话。RAG 增加 ~100ms 延迟和基础设施复杂度，收益有限。</p>
+      </div>
+    </div>
+
+    <div class="callout rv">
+      <b>结论：</b>对于 persona chatbot，Prompt-only 方案目前更优。单次 API 调用 ~800ms，零额外基础设施，改一个文件就能迭代。RAG 留作后备——等到需要"事实回忆"能力时再启用。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 8 -->
+    <h2 id="review" class="rv">Review 系统：<em>闭环</em>反馈</h2>
+
+    <p class="rv">Prompt 工程不是一次性的。需要持续观察效果，发现问题，迭代改进。Aime 内置了一个 <a href="https://aime.ning.codes/review.html" target="_blank">Review 页面</a> 来完成这个闭环。</p>
+
+    <h3 class="rv">数据采集</h3>
+
+    <p class="rv">每次对话交互自动保存到 Redis——用户消息、AI 回复、上下文历史、session ID。不阻塞响应，fire-and-forget 模式。</p>
+
+    <h3 class="rv">Review 功能</h3>
+
+    <div class="insight-grid">
+      <div class="insight-card rv">
+        <h4>双视图模式</h4>
+        <p><strong>Session View</strong>：按会话分组，看完整对话流。<strong>Flat View</strong>：逐条查看，适合快速扫描。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>评分系统</h4>
+        <p>每条交互可标记为 Good / Bad。用于追踪 prompt 调整前后的质量变化。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>过滤器</h4>
+        <p>All / Unrated / Good / Bad 四种过滤，带实时计数。快速定位问题回复。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>JSON 导出</h4>
+        <p>一键导出所有对话数据。可以用来做进一步分析，或作为 fine-tuning 训练集。</p>
+      </div>
+    </div>
+
+    <h3 class="rv">迭代循环</h3>
+
+    <div class="diagram rv">1. 部署新 prompt → 用户聊天
+2. Review 页面查看对话质量
+3. 发现问题（太长/太生硬/风格偏离）
+4. 调整 prompt（改规则/换 examples/调参数）
+5. 重新部署 → 回到步骤 1
+
+<span class="dim">每轮迭代只需要改一个文件，部署一次 vercel --prod</span></div>
+
+    <hr class="section-divider">
+
+    <!-- 9 -->
+    <h2 id="boundaries" class="rv">安全<em>边界</em></h2>
+
+    <p class="rv">Persona chatbot 有一个独特风险：它在扮演一个<strong>真人</strong>。如果 AI 编造了不存在的个人信息，或者泄露了敏感数据，后果比普通 chatbot 严重得多。</p>
+
+    <p class="rv">System prompt 中有一个明确的"最重要"规则区：</p>
+
+    <div class="code-block rv"><span class="cm">// System prompt 安全边界（节选）</span>
+
+<span class="kw">【绝对不能做的事情】</span>
+- 不泄露隐私：手机号、地址、身份证、密码、银行卡、工号
+- 不说公司机密：TikTok 的架构、模型、内部工具
+- 不帮助违法行为：钓鱼邮件、诈骗、黑客攻击
+- 已婚，不调情，不玩暧昧
+- 不鼓励自残自杀，遇到要建议找专业帮助
+- <span class="str">不编造个人信息——只说上面提供的基本信息</span></div>
+
+    <div class="callout rv">
+      <b>设计原则：</b>白名单 > 黑名单。不是"不要说 X"，而是"只能说这些"。AI 只了解 prompt 中提供的个人信息，超出范围的一律用幽默化解：<code>"这个我不太方便说哈"</code>。
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 10 -->
+    <h2 id="conclusion" class="rv"><em>总结</em></h2>
+
+    <p class="rv">Aime 的核心公式：</p>
+
+    <div class="diagram rv"><span class="hl">真实的 Persona</span> = 统计量化的说话风格
+                 + 精选的对话 Examples
+                 + 严格的安全边界
+                 + 持续的 Review 迭代</div>
+
+    <p class="rv">不需要微调。不需要训练数据。不需要 GPU。</p>
+
+    <p class="rv">一个 BeautifulSoup 解析脚本、一个统计分析脚本、一个好的 system prompt。三个组件就能让 AI 学会一个真人的聊天风格——精确到每条消息的平均字数和 emoji 使用频率。</p>
+
+    <p class="rv">如果你也想做一个 persona chatbot，不要从模型微调开始。从数据开始。先量化你的说话习惯，再让 AI 执行这些数字。</p>
+
+    <div class="callout rv">
+      <b>Try it:</b> <a href="https://aime.ning.codes" target="_blank">aime.ning.codes</a> · <a href="https://aime.ning.codes/showcase.html" target="_blank">Technical Showcase</a>
+    </div>
+
+  </article>
+
+  <footer class="page-footer">
+    <span>&copy; 2025 Ning</span>
+    <span class="made"><span class="heart"></span> vibed into existence</span>
+  </footer>
+</div>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('v');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
