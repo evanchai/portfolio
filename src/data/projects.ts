@@ -41,6 +41,12 @@ export const projects: Project[] = [
     slug: 'airwave',
     url: 'https://airwave.ning.codes',
     image: '/images/airwave.svg'
+  },
+  {
+    name: 'Tunes',
+    slug: 'tunes',
+    url: 'https://tunes.ning.codes',
+    image: '/images/tunes.svg'
   }
 ]
 
