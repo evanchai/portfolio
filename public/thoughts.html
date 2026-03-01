@@ -131,6 +131,75 @@
       text-transform: uppercase;
       color: var(--text-3);
       margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .type-badge {
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+      border: 1px solid;
+      line-height: 1.4;
+    }
+
+    .type-badge.thought {
+      color: var(--olive);
+      border-color: var(--olive);
+    }
+
+    .type-badge.article {
+      color: #b8860b;
+      border-color: #b8860b;
+    }
+
+    /* ── Article cards ── */
+    .thought-card.article-card {
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+
+    .thought-card.article-card:hover {
+      border-color: #b8860b;
+    }
+
+    .article-title {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 300;
+      line-height: 1.4;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .article-title em {
+      font-style: italic;
+      color: var(--olive);
+    }
+
+    .article-desc {
+      font-family: var(--serif);
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--text-2);
+    }
+
+    .article-arrow {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-3);
+      margin-top: 0.8rem;
+      transition: color 0.3s;
+    }
+
+    .thought-card.article-card:hover .article-arrow {
+      color: var(--olive);
     }
 
     .thought-text {
@@ -399,6 +468,32 @@
   </div>
 
   <script>
+    // Static articles (rendered alongside dynamic thoughts)
+    var ARTICLES = [
+      {
+        type: 'article',
+        date: 'Mar 2025',
+        createdAt: new Date('2025-03-01').getTime(),
+        title: 'LLM-as-RecSys：从 0 到 1 搭建个人音乐推荐系统',
+        titleEn: 'LLM-as-RecSys: Building a Personal Music Recommendation System from Scratch',
+        desc: '不需要协同过滤、不需要 embedding、不需要训练数据。用一个 LLM + 一段 playlist + 持续的听歌行为，就能搭建一个越用越懂你的推荐系统。',
+        descEn: 'No collaborative filtering, no embeddings, no training data. Just an LLM, a playlist, and continuous listening behavior to build a recommendation system that gets better over time.',
+        tags: ['ai', 'recsys', 'music'],
+        url: '/thoughts/tunes-recsys.html',
+      },
+      {
+        type: 'article',
+        date: 'Feb 2025',
+        createdAt: new Date('2025-02-15').getTime(),
+        title: '让 AI 学会真人聊天：从微信记录到 Persona Chatbot',
+        titleEn: 'Teaching AI to Chat Like a Real Person: From WeChat History to Persona Chatbot',
+        desc: '不靠微调，只靠统计分析 8000+ 条真实聊天记录，把一个人的说话习惯量化成数字，编码进 system prompt。',
+        descEn: 'No fine-tuning — just statistically analyzing 8000+ real chat messages, quantifying speaking habits into numbers, and encoding them into a system prompt.',
+        tags: ['ai', 'chatbot', 'prompt-engineering'],
+        url: '/thoughts/aime-persona.html',
+      },
+    ];
+
     const feed = document.getElementById('feed');
     const loading = document.getElementById('loading');
     const fab = document.getElementById('fab');
@@ -439,7 +534,32 @@
       return html;
     }
 
+    function renderArticleCard(a, i) {
+      const card = document.createElement('a');
+      card.className = 'thought-card article-card';
+      card.href = a.url;
+
+      card.innerHTML =
+        '<div class="thought-date">' +
+          '<span class="type-badge article">Article</span>' +
+          escapeHtml(a.date) +
+        '</div>' +
+        '<div class="article-title">' + escapeHtml(a.title) + '</div>' +
+        '<div class="article-desc">' + escapeHtml(a.desc) + '</div>' +
+        '<div class="thought-tags">' + a.tags.map(function(tag) { return '<span class="thought-tag">#' + escapeHtml(tag) + '</span>'; }).join('') + '</div>' +
+        '<div class="article-arrow">Read →</div>';
+
+      feed.appendChild(card);
+      setTimeout(function() { card.classList.add('visible'); }, 80 + i * 100);
+    }
+
     function renderCard(t, i) {
+      // Handle article type
+      if (t.type === 'article') {
+        renderArticleCard(t, i);
+        return;
+      }
+
       const card = document.createElement('div');
       card.className = 'thought-card';
       card.dataset.id = t.id;
@@ -451,7 +571,10 @@
 
       card.innerHTML =
         deleteBtn +
-        '<div class="thought-date">' + escapeHtml(t.date) + '</div>' +
+        '<div class="thought-date">' +
+          '<span class="type-badge thought">Thought</span>' +
+          escapeHtml(t.date) +
+        '</div>' +
         renderTextHtml(t.text) +
         '<div class="thought-tags">' + t.tags.map(function(tag) { return '<span class="thought-tag">#' + escapeHtml(tag) + '</span>'; }).join('') + '</div>';
 
@@ -472,12 +595,19 @@
         const data = await res.json();
         loading.remove();
 
-        if (data.length === 0) {
+        // Merge articles with thoughts, sort by date descending
+        var all = ARTICLES.slice().concat(data.map(function(t) {
+          t.type = 'thought';
+          return t;
+        }));
+        all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
+        if (all.length === 0) {
           feed.innerHTML = '<div class="loading">No thoughts yet.</div>';
           return;
         }
 
-        data.forEach(function(t, i) { renderCard(t, i); });
+        all.forEach(function(t, i) { renderCard(t, i); });
       } catch (err) {
         loading.textContent = 'Failed to load thoughts.';
       }

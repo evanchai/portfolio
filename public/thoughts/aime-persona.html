@@ -387,6 +387,13 @@
     .page-footer .made { display: flex; align-items: center; gap: 0.5rem; }
     .page-footer .heart { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--olive); }
 
+    /* ── Language Toggle ── */
+    .lang-toggle { position: fixed; top: 2rem; right: 2rem; font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.4rem 1rem; border: 1px solid var(--line); border-radius: 100px; background: var(--card); color: var(--text-2); cursor: pointer; transition: all 0.3s; z-index: 50; }
+    .lang-toggle:hover { border-color: var(--olive); color: var(--olive); }
+    .en { display: none; }
+    html.lang-en .zh { display: none; }
+    html.lang-en .en { display: revert; }
+
     /* ── Scroll reveal ── */
     .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .rv.v { opacity: 1; transform: translateY(0); }
@@ -404,6 +411,7 @@
       .article-table th, .article-table td { padding: 0.5rem 0.6rem; }
       .page-footer { flex-direction: column; gap: 0.5rem; }
       .toc { padding: 1.4rem 1.5rem; }
+      .lang-toggle { top: 1rem; right: 1rem; }
     }
   </style>
 </head>
@@ -411,21 +419,29 @@
 
 <div class="page">
   <div class="back-link">
-    <a href="/">← ning.codes</a>
+    <a href="/thoughts">&larr; thoughts</a>
   </div>
+  <button class="lang-toggle" id="langToggle">EN</button>
 
   <!-- Header -->
   <header class="article-header rv">
     <div class="article-meta">
       <span>Feb 2025</span>
       <span>Ning</span>
-      <span>~12 min read</span>
+      <span class="zh">~12 min read</span>
+      <span class="en">~12 min read</span>
     </div>
-    <h1>让 AI 学会真人聊天：<br>从微信记录到 <em>Persona</em> Chatbot</h1>
-    <p class="article-lead">
+    <h1 class="zh">让 AI 学会真人聊天：<br>从微信记录到 <em>Persona</em> Chatbot</h1>
+    <h1 class="en">Teaching AI to Chat Like a Real Person:<br>From WeChat History to <em>Persona</em> Chatbot</h1>
+    <p class="article-lead zh">
       不靠微调，不靠 fine-tuning，只靠统计分析 8000+ 条真实聊天记录，
       把一个人的说话习惯量化成数字，然后编码进 system prompt。
       结果是一个连朋友都分不清真假的聊天机器人。
+    </p>
+    <p class="article-lead en">
+      No fine-tuning, no training data — just statistical analysis of 8000+ real chat messages,
+      quantifying a person's speaking habits into numbers, then encoding them into a system prompt.
+      The result: a chatbot that even friends can't tell apart from the real person.
     </p>
     <div class="article-tags">
       <span class="article-tag">#ai</span>
@@ -438,7 +454,7 @@
   <!-- TOC -->
   <nav class="toc rv">
     <div class="toc-title">Table of Contents</div>
-    <ol>
+    <ol class="zh">
       <li><a href="#idea">核心理念：数据驱动的 Persona</a></li>
       <li><a href="#pipeline">训练 Pipeline：从微信到 Prompt</a></li>
       <li><a href="#style">统计分析：量化一个人的聊天风格</a></li>
@@ -450,38 +466,58 @@
       <li><a href="#boundaries">安全边界</a></li>
       <li><a href="#conclusion">总结</a></li>
     </ol>
+    <ol class="en">
+      <li><a href="#idea">Core Philosophy: Data-Driven Persona</a></li>
+      <li><a href="#pipeline">Training Pipeline: From WeChat to Prompt</a></li>
+      <li><a href="#style">Statistical Analysis: Quantifying Chat Style</a></li>
+      <li><a href="#prompt">System Prompt Structure</a></li>
+      <li><a href="#runtime">Runtime Architecture</a></li>
+      <li><a href="#multi-bubble">Multi-Bubble Replies: Simulating Real Chat Rhythm</a></li>
+      <li><a href="#rag">RAG Analysis: Worth the Complexity?</a></li>
+      <li><a href="#review">Review System: Closed-Loop Feedback</a></li>
+      <li><a href="#boundaries">Safety Boundaries</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+    </ol>
   </nav>
 
   <!-- Article Body -->
   <article class="article-body">
 
     <!-- 1 -->
-    <h2 id="idea" class="rv">核心理念：<em>数据驱动</em>的 Persona</h2>
+    <h2 id="idea" class="rv zh">核心理念：<em>数据驱动</em>的 Persona</h2>
+    <h2 class="rv en">Core Philosophy: <em>Data-Driven</em> Persona</h2>
 
-    <p class="rv">市面上的 persona chatbot 大多靠手写 prompt："你是一个友善的助手，说话风格活泼…"。这种方式有一个本质问题——<strong>你怎么定义"活泼"？</strong></p>
+    <p class="rv zh">市面上的 persona chatbot 大多靠手写 prompt："你是一个友善的助手，说话风格活泼…"。这种方式有一个本质问题——<strong>你怎么定义"活泼"？</strong></p>
+    <p class="rv en">Most persona chatbots rely on handwritten prompts: "You are a friendly assistant with a lively style..." This approach has a fundamental problem — <strong>how do you define "lively"?</strong></p>
 
-    <p class="rv">Aime 的做法不一样。它不描述风格，它<strong>测量</strong>风格：</p>
+    <p class="rv zh">Aime 的做法不一样。它不描述风格，它<strong>测量</strong>风格：</p>
+    <p class="rv en">Aime takes a different approach. It doesn't describe style — it <strong>measures</strong> it:</p>
 
-    <div class="diagram rv"><span class="dim">传统路线</span>
+    <div class="diagram rv"><span class="dim zh">传统路线</span><span class="dim en">Traditional approach</span>
 人工描述性格 → 手写 prompt → 祈祷 AI 理解
 
-<span class="dim">Aime 路线</span>
+<span class="dim">Aime</span>
 微信聊天记录 → <span class="hl">统计分析 7 个维度</span> → 量化数字编码进 prompt
                      ↓
                <span class="hl">挑选 20 条代表性对话</span> → few-shot examples</div>
 
-    <p class="rv">具体来说：不说"你说话很短"，而是说"你的消息平均 14.2 个字，44.4% 在 10 字以内"。不说"你偶尔用 emoji"，而是说"18.2% 的消息包含 emoji，最常用的是 😂😭🤮🙄😏"。</p>
+    <p class="rv zh">具体来说：不说"你说话很短"，而是说"你的消息平均 14.2 个字，44.4% 在 10 字以内"。不说"你偶尔用 emoji"，而是说"18.2% 的消息包含 emoji，最常用的是 😂😭🤮🙄😏"。</p>
+    <p class="rv en">Specifically: instead of saying "you write short messages", we say "your messages average 14.2 characters, 44.4% under 10 characters". Instead of "you occasionally use emoji", we say "18.2% of messages contain emoji, most used: 😂😭🤮🙄😏".</p>
 
     <div class="callout rv">
-      <b>关键洞察：</b>LLM 对数字的遵从度远高于形容词。"平均 14 个字"比"简短"精确 10 倍，AI 也更容易执行。
+      <b class="zh">关键洞察：</b><b class="en">Key Insight:</b>
+      <span class="zh">LLM 对数字的遵从度远高于形容词。"平均 14 个字"比"简短"精确 10 倍，AI 也更容易执行。</span>
+      <span class="en">LLMs follow numbers far more precisely than adjectives. "Average 14 characters" is 10x more precise than "brief", and much easier for AI to execute.</span>
     </div>
 
     <hr class="section-divider">
 
     <!-- 2 -->
-    <h2 id="pipeline" class="rv">训练 Pipeline：从微信到 <em>Prompt</em></h2>
+    <h2 id="pipeline" class="rv zh">训练 Pipeline：从微信到 <em>Prompt</em></h2>
+    <h2 class="rv en">Training Pipeline: From WeChat to <em>Prompt</em></h2>
 
-    <p class="rv">整个流程不涉及任何模型训练。五个脚本，跑一遍就好。</p>
+    <p class="rv zh">整个流程不涉及任何模型训练。五个脚本，跑一遍就好。</p>
+    <p class="rv en">The entire process involves zero model training. Five scripts, one run.</p>
 
     <div class="diagram rv"><span class="hl">Step 1</span>  微信 HTML 导出  ──→  parse_wechat.py  ──→  chat_pairs.jsonl
 <span class="hl">Step 2</span>  chat_pairs.jsonl  ──→  analyze_style.py ──→  style_analysis.json
@@ -489,31 +525,45 @@
 <span class="hl">Step 4</span>  style + QA 问卷   ──→  prompt_builder.py ──→ system prompt
 <span class="hl">Step 5</span>  system prompt      ──→  chat_engine.py    ──→ 部署上线</div>
 
-    <h3 class="rv">Step 1：解析微信记录</h3>
+    <h3 class="rv zh">Step 1：解析微信记录</h3>
+    <h3 class="rv en">Step 1: Parsing WeChat History</h3>
 
-    <p class="rv">微信聊天记录通过 WeChatExporter 导出为 HTML。解析面临几个挑战：</p>
+    <p class="rv zh">微信聊天记录通过 WeChatExporter 导出为 HTML。解析面临几个挑战：</p>
+    <p class="rv en">WeChat history is exported as HTML via WeChatExporter. Parsing faces several challenges:</p>
 
-    <ul class="rv">
+    <ul class="rv zh">
       <li><strong>分页加载</strong>：首页约 1000 条消息，剩余在 JS 文件中（<code>msg-1.js</code>, <code>msg-2.js</code>…）</li>
       <li><strong>Emoji 标签</strong>：微信 emoji 是 <code>&lt;img class="wxemoji"&gt;</code> 标签，需要转成 Unicode</li>
       <li><strong>连续消息合并</strong>：同一个人 2 分钟内的多条消息合并为一条（模拟微信多行发送）</li>
       <li><strong>上下文对</strong>：提取 (context, response) 对——每条回复配最多 5 条前文</li>
     </ul>
+    <ul class="rv en">
+      <li><strong>Paginated loading</strong>: First page has ~1000 messages, the rest are in JS files (<code>msg-1.js</code>, <code>msg-2.js</code>...)</li>
+      <li><strong>Emoji tags</strong>: WeChat emojis are <code>&lt;img class="wxemoji"&gt;</code> tags that need conversion to Unicode</li>
+      <li><strong>Consecutive message merging</strong>: Multiple messages from the same person within 2 minutes are merged into one (simulating WeChat multi-line sending)</li>
+      <li><strong>Context pairs</strong>: Extract (context, response) pairs — each reply gets up to 5 preceding messages</li>
+    </ul>
 
-    <h3 class="rv">Step 2：统计风格分析</h3>
+    <h3 class="rv zh">Step 2：统计风格分析</h3>
+    <h3 class="rv en">Step 2: Statistical Style Analysis</h3>
 
-    <p class="rv">这是整个系统的灵魂。下一节详细展开。</p>
+    <p class="rv zh">这是整个系统的灵魂。下一节详细展开。</p>
+    <p class="rv en">This is the soul of the entire system. Detailed in the next section.</p>
 
-    <h3 class="rv">Step 3：构建向量库（可选）</h3>
+    <h3 class="rv zh">Step 3：构建向量库（可选）</h3>
+    <h3 class="rv en">Step 3: Building Vector Database (Optional)</h3>
 
-    <p class="rv">用 Gemini Embedding API 把所有对话对转成 768 维向量，存为 <code>.npz</code> 文件。运行时做余弦相似度检索。Python 版本用到，Web 版本没用。</p>
+    <p class="rv zh">用 Gemini Embedding API 把所有对话对转成 768 维向量，存为 <code>.npz</code> 文件。运行时做余弦相似度检索。Python 版本用到，Web 版本没用。</p>
+    <p class="rv en">Use Gemini Embedding API to convert all conversation pairs into 768-dim vectors, stored as <code>.npz</code> files. Cosine similarity search at runtime. Used in Python version, not in Web version.</p>
 
     <hr class="section-divider">
 
     <!-- 3 -->
-    <h2 id="style" class="rv">统计分析：<em>量化</em>一个人的聊天风格</h2>
+    <h2 id="style" class="rv zh">统计分析：<em>量化</em>一个人的聊天风格</h2>
+    <h2 class="rv en">Statistical Analysis: <em>Quantifying</em> Chat Style</h2>
 
-    <p class="rv">从 8394 条真实消息中提取 7 个维度的统计数据：</p>
+    <p class="rv zh">从 8394 条真实消息中提取 7 个维度的统计数据：</p>
+    <p class="rv en">Extracted 7 dimensions of statistical data from 8,394 real messages:</p>
 
     <div class="stats-row rv">
       <div class="stat-card">
@@ -534,7 +584,7 @@
       </div>
     </div>
 
-    <table class="article-table rv">
+    <table class="article-table rv zh">
       <thead>
         <tr><th>维度</th><th>分析内容</th><th>实际数据</th></tr>
       </thead>
@@ -548,14 +598,31 @@
         <tr><td>风格总结</td><td>AI 生成的整体描述</td><td>偏短句型、随意、不拘小节</td></tr>
       </tbody>
     </table>
+    <table class="article-table rv en">
+      <thead>
+        <tr><th>Dimension</th><th>Analysis Content</th><th>Actual Data</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Message length</td><td>Avg word count, short/mid/long ratio</td><td>Avg 14.2 chars, 44.4% &lt; 10 chars</td></tr>
+        <tr><td>Punctuation</td><td>Punctuation frequency, no-punctuation rate</td><td>97% no punctuation</td></tr>
+        <tr><td>Catchphrases</td><td>Top 15 frequent words with counts</td><td>哈哈(342), 嗯(128), kk...</td></tr>
+        <tr><td>Emoji</td><td>Usage rate, Top 10 WeChat/Unicode emoji</td><td>18.2% contain emoji, favorites: 😂😭🤮</td></tr>
+        <tr><td>Line breaks</td><td>Multi-line message ratio</td><td>Frequently splits into multiple short messages</td></tr>
+        <tr><td>Mixed language</td><td>Pure CN / pure EN / mixed ratio</td><td>29.3% mixed Chinese-English</td></tr>
+        <tr><td>Style summary</td><td>AI-generated overall description</td><td>Short sentences, casual, laid-back</td></tr>
+      </tbody>
+    </table>
 
-    <p class="rv">这些数字直接编码进 system prompt。AI 看到"平均 14.2 字"就知道不该输出长段落，看到"97% 无标点"就自然省略句号。</p>
+    <p class="rv zh">这些数字直接编码进 system prompt。AI 看到"平均 14.2 字"就知道不该输出长段落，看到"97% 无标点"就自然省略句号。</p>
+    <p class="rv en">These numbers are encoded directly into the system prompt. When AI sees "average 14.2 characters", it knows not to output long paragraphs. When it sees "97% no punctuation", it naturally omits periods.</p>
 
-    <h3 class="rv">代表性对话挑选</h3>
+    <h3 class="rv zh">代表性对话挑选</h3>
+    <h3 class="rv en">Selecting Representative Examples</h3>
 
-    <p class="rv">从几千条对话中挑出 20 条作为 few-shot examples，策略是三分法：</p>
+    <p class="rv zh">从几千条对话中挑出 20 条作为 few-shot examples，策略是三分法：</p>
+    <p class="rv en">From thousands of conversations, 20 are selected as few-shot examples using a three-way split strategy:</p>
 
-    <div class="insight-grid">
+    <div class="insight-grid zh">
       <div class="insight-card rv">
         <h4>1/3 口头禅对话</h4>
         <p>包含高频词（哈哈、嗯、kk）的消息，展示最典型的说话习惯。</p>
@@ -573,24 +640,52 @@
         <p>每条 example 带上下文，格式：<code>朋友(小屎蛋儿): xxx → 你: xxx</code>，让 AI 理解对话节奏。</p>
       </div>
     </div>
+    <div class="insight-grid en">
+      <div class="insight-card rv">
+        <h4>1/3 Catchphrase Conversations</h4>
+        <p>Messages containing frequent words (haha, hmm, kk), showcasing the most typical speaking habits.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>1/3 Length-Balanced</h4>
+        <p>A mix of short/mid/long messages, so AI knows how much to write in different scenarios.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>1/3 Random Sampling</h4>
+        <p>Fills remaining slots for diversity, preventing examples from skewing toward one topic.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Formatted Output</h4>
+        <p>Each example includes context, formatted as: <code>Friend(nickname): xxx → You: xxx</code>, helping AI understand conversation rhythm.</p>
+      </div>
+    </div>
 
     <hr class="section-divider">
 
     <!-- 4 -->
-    <h2 id="prompt" class="rv">System Prompt 的<em>结构</em></h2>
+    <h2 id="prompt" class="rv zh">System Prompt 的<em>结构</em></h2>
+    <h2 class="rv en">System Prompt <em>Structure</em></h2>
 
-    <p class="rv">最终的 system prompt 约 4000 字，由 6 个模块组成：</p>
+    <p class="rv zh">最终的 system prompt 约 4000 字，由 6 个模块组成：</p>
+    <p class="rv en">The final system prompt is ~4000 characters, composed of 6 modules:</p>
 
-    <div class="diagram rv"><span class="hl">[身份设定]</span>    你是柴宁，不是 AI 助手，你就是柴宁本人在微信聊天
+    <div class="diagram rv zh"><span class="hl">[身份设定]</span>    你是柴宁，不是 AI 助手，你就是柴宁本人在微信聊天
 <span class="hl">[个人信息]</span>    年龄（动态计算）、职业、所在地、家庭、兴趣
 <span class="hl">[性格特征]</span>    幽默、自嘲、有主见、喜欢组局、大方
 <span class="hl">[说话风格]</span>    统计数据：长度、标点、口头禅、emoji、中英混杂
 <span class="hl">[对话示例]</span>    20 条代表性对话（带上下文）
 <span class="hl">[安全边界]</span>    隐私保护、公司信息、法律合规</div>
+    <div class="diagram rv en"><span class="hl">[Identity]</span>     You are Chai Ning, not an AI assistant — you ARE Ning chatting on WeChat
+<span class="hl">[Personal Info]</span> Age (dynamically calculated), job, location, family, interests
+<span class="hl">[Personality]</span>   Humorous, self-deprecating, opinionated, social organizer, generous
+<span class="hl">[Speech Style]</span>  Stats: length, punctuation, catchphrases, emoji, CN-EN mixing
+<span class="hl">[Examples]</span>      20 representative conversations (with context)
+<span class="hl">[Safety]</span>        Privacy protection, company info, legal compliance</div>
 
-    <h3 class="rv">动态时间注入</h3>
+    <h3 class="rv zh">动态时间注入</h3>
+    <h3 class="rv en">Dynamic Time Injection</h3>
 
-    <p class="rv">System prompt <strong>每次请求都重新生成</strong>，注入当前时间和计算后的年龄：</p>
+    <p class="rv zh">System prompt <strong>每次请求都重新生成</strong>，注入当前时间和计算后的年龄：</p>
+    <p class="rv en">System prompt is <strong>regenerated for every request</strong>, injecting current time and calculated age:</p>
 
     <div class="code-block rv"><span class="cm">// 每次 API 调用都重新计算</span>
 <span class="kw">const</span> now = <span class="kw">new</span> Date()
@@ -603,11 +698,13 @@
 <span class="cm">// 注入 prompt</span>
 <span class="str">`【当前真实时间：${dateStr} ${timeStr} 太平洋时间。】`</span></div>
 
-    <p class="rv">这样 AI 永远不会说错自己的年龄或搞错当前时间。</p>
+    <p class="rv zh">这样 AI 永远不会说错自己的年龄或搞错当前时间。</p>
+    <p class="rv en">This way, the AI never states the wrong age or mistakes the current time.</p>
 
-    <h3 class="rv">双模式设计</h3>
+    <h3 class="rv zh">双模式设计</h3>
+    <h3 class="rv en">Dual Mode Design</h3>
 
-    <div class="insight-grid">
+    <div class="insight-grid zh">
       <div class="insight-card rv">
         <h4>闲聊模式（默认）</h4>
         <p>短消息、口语化、带口头禅。5-20 字一条，可能拆成 2-3 条发送。</p>
@@ -617,15 +714,27 @@
         <p>触发条件：技术问题、专业话题。允许更长回复，但保持个人语气。</p>
       </div>
     </div>
+    <div class="insight-grid en">
+      <div class="insight-card rv">
+        <h4>Casual Mode (Default)</h4>
+        <p>Short messages, colloquial, with filler words. 5-20 chars per message, may split into 2-3 messages.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Knowledge Mode</h4>
+        <p>Triggered by: technical questions, professional topics. Allows longer replies but maintains personal voice.</p>
+      </div>
+    </div>
 
     <hr class="section-divider">
 
     <!-- 5 -->
-    <h2 id="runtime" class="rv">运行时<em>架构</em></h2>
+    <h2 id="runtime" class="rv zh">运行时<em>架构</em></h2>
+    <h2 class="rv en">Runtime <em>Architecture</em></h2>
 
-    <p class="rv">从用户发送消息到收到回复，经历以下流程：</p>
+    <p class="rv zh">从用户发送消息到收到回复，经历以下流程：</p>
+    <p class="rv en">From user sending a message to receiving a reply, the following pipeline executes:</p>
 
-    <div class="diagram rv"><span class="hl">用户输入</span> → React 前端
+    <div class="diagram rv zh"><span class="hl">用户输入</span> → React 前端
        ↓
 <span class="hl">/api/chat</span> → Vercel Function
        ↓
@@ -642,10 +751,28 @@
 <span class="hl">前端显示</span> → 每条消息加 typing delay
        ↓
 <span class="hl">Redis</span> → 异步保存（不阻塞响应），90 天 TTL</div>
+    <div class="diagram rv en"><span class="hl">User input</span> → React frontend
+       ↓
+<span class="hl">/api/chat</span> → Vercel Function
+       ↓
+  1. Dynamically generate system prompt (with current time/age)
+  2. Format last 20 history messages
+  3. If older messages exist, inject system note: "N earlier messages"
+       ↓
+<span class="hl">Gemini 2.0 Flash</span> → maxOutputTokens: 128, temperature: 0.8
+       ↓
+  4. Split multi-line reply (by newline)
+  5. Filter [Emoji] placeholders
+  6. Cap at 3 messages max
+       ↓
+<span class="hl">Frontend display</span> → typing delay per message
+       ↓
+<span class="hl">Redis</span> → async save (non-blocking), 90-day TTL</div>
 
-    <h3 class="rv">关键参数</h3>
+    <h3 class="rv zh">关键参数</h3>
+    <h3 class="rv en">Key Parameters</h3>
 
-    <table class="article-table rv">
+    <table class="article-table rv zh">
       <thead>
         <tr><th>参数</th><th>值</th><th>原因</th></tr>
       </thead>
@@ -657,15 +784,30 @@
         <tr><td>Redis TTL</td><td>90 天</td><td>够用于 review，不会无限膨胀</td></tr>
       </tbody>
     </table>
+    <table class="article-table rv en">
+      <thead>
+        <tr><th>Parameter</th><th>Value</th><th>Reason</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>maxOutputTokens</td><td>128</td><td>Force short replies, simulating WeChat message length</td></tr>
+        <tr><td>temperature</td><td>0.8</td><td>Natural but not off-the-rails — casual chat needs randomness</td></tr>
+        <tr><td>Context window</td><td>20 messages</td><td>Balance coherence with token cost</td></tr>
+        <tr><td>Max reply count</td><td>3</td><td>Simulate WeChat multi-message, but don't overdo it</td></tr>
+        <tr><td>Redis TTL</td><td>90 days</td><td>Enough for review, won't grow indefinitely</td></tr>
+      </tbody>
+    </table>
 
     <hr class="section-divider">
 
     <!-- 6 -->
-    <h2 id="multi-bubble" class="rv">多消息回复：模拟真实<em>聊天节奏</em></h2>
+    <h2 id="multi-bubble" class="rv zh">多消息回复：模拟真实<em>聊天节奏</em></h2>
+    <h2 class="rv en">Multi-Bubble Replies: Simulating Real <em>Chat Rhythm</em></h2>
 
-    <p class="rv">真人在微信聊天不会一次发一大段。会拆成 2-3 条短消息，中间有自然的打字间隔。Aime 完整模拟了这个行为。</p>
+    <p class="rv zh">真人在微信聊天不会一次发一大段。会拆成 2-3 条短消息，中间有自然的打字间隔。Aime 完整模拟了这个行为。</p>
+    <p class="rv en">Real people don't send one big paragraph on WeChat. They split into 2-3 short messages with natural typing intervals. Aime fully simulates this behavior.</p>
 
-    <h3 class="rv">后端：拆分回复</h3>
+    <h3 class="rv zh">后端：拆分回复</h3>
+    <h3 class="rv en">Backend: Splitting Replies</h3>
 
     <div class="code-block rv"><span class="cm">// Gemini 输出按换行符拆分</span>
 <span class="kw">const</span> replies = raw
@@ -677,7 +819,8 @@
 <span class="cm">// 至少返回一条消息</span>
 <span class="kw">const</span> finalReplies = replies.length > <span class="num">0</span> ? replies : [<span class="str">"嗯"</span>]</div>
 
-    <h3 class="rv">前端：模拟打字延迟</h3>
+    <h3 class="rv zh">前端：模拟打字延迟</h3>
+    <h3 class="rv en">Frontend: Simulating Typing Delay</h3>
 
     <div class="code-block rv"><span class="cm">// 每条消息的延迟与长度成正比</span>
 <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < replies.length; i++) {
@@ -690,16 +833,19 @@
 <span class="cm">// "我觉得这个方案可以" (8字) → 1040ms delay</span>
 <span class="cm">// 一大段话 → 最多 2500ms</span></div>
 
-    <p class="rv">加上前端的 typing indicator（三个跳动的点），整个体验非常接近真人发消息。</p>
+    <p class="rv zh">加上前端的 typing indicator（三个跳动的点），整个体验非常接近真人发消息。</p>
+    <p class="rv en">Combined with the frontend's typing indicator (three bouncing dots), the entire experience closely mimics a real person sending messages.</p>
 
     <hr class="section-divider">
 
     <!-- 7 -->
-    <h2 id="rag" class="rv">RAG 分析：<em>值不值得</em>用？</h2>
+    <h2 id="rag" class="rv zh">RAG 分析：<em>值不值得</em>用？</h2>
+    <h2 class="rv en">RAG Analysis: <em>Is It Worth</em> the Complexity?</h2>
 
-    <p class="rv">Python 版本包含完整的 RAG pipeline——向量化 5000+ 条历史对话，运行时检索最相似的 5 条作为参考。但 Web 版本没有用。为什么？</p>
+    <p class="rv zh">Python 版本包含完整的 RAG pipeline——向量化 5000+ 条历史对话，运行时检索最相似的 5 条作为参考。但 Web 版本没有用。为什么？</p>
+    <p class="rv en">The Python version includes a complete RAG pipeline — vectorizing 5000+ historical conversations, retrieving the 5 most similar ones as reference at runtime. But the Web version doesn't use it. Why?</p>
 
-    <div class="insight-grid">
+    <div class="insight-grid zh">
       <div class="insight-card rv">
         <h4>RAG 有帮助的场景</h4>
         <p><strong>小众话题。</strong> 比如用户问到特定的共同回忆、小众梗或罕见口头禅，静态 prompt 覆盖不到，RAG 能从历史中检索到相关对话。</p>
@@ -709,25 +855,42 @@
         <p><strong>日常闲聊。</strong> 统计风格规则已经能处理 90% 的常见对话。RAG 增加 ~100ms 延迟和基础设施复杂度，收益有限。</p>
       </div>
     </div>
+    <div class="insight-grid en">
+      <div class="insight-card rv">
+        <h4>Where RAG Helps</h4>
+        <p><strong>Niche topics.</strong> When users ask about specific shared memories, obscure inside jokes, or rare catchphrases, static prompts can't cover them — RAG can retrieve relevant conversations from history.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Where RAG Is Over-Engineering</h4>
+        <p><strong>Daily chat.</strong> Statistical style rules already handle 90% of common conversations. RAG adds ~100ms latency and infrastructure complexity for limited gain.</p>
+      </div>
+    </div>
 
     <div class="callout rv">
-      <b>结论：</b>对于 persona chatbot，Prompt-only 方案目前更优。单次 API 调用 ~800ms，零额外基础设施，改一个文件就能迭代。RAG 留作后备——等到需要"事实回忆"能力时再启用。
+      <b class="zh">结论：</b><b class="en">Conclusion:</b>
+      <span class="zh">对于 persona chatbot，Prompt-only 方案目前更优。单次 API 调用 ~800ms，零额外基础设施，改一个文件就能迭代。RAG 留作后备——等到需要"事实回忆"能力时再启用。</span>
+      <span class="en">For persona chatbots, the Prompt-only approach currently wins. Single API call ~800ms, zero additional infrastructure, iterate by editing one file. RAG is kept as a backup — enable when "factual recall" capability is needed.</span>
     </div>
 
     <hr class="section-divider">
 
     <!-- 8 -->
-    <h2 id="review" class="rv">Review 系统：<em>闭环</em>反馈</h2>
+    <h2 id="review" class="rv zh">Review 系统：<em>闭环</em>反馈</h2>
+    <h2 class="rv en">Review System: <em>Closed-Loop</em> Feedback</h2>
 
-    <p class="rv">Prompt 工程不是一次性的。需要持续观察效果，发现问题，迭代改进。Aime 内置了一个 <a href="https://aime.ning.codes/review.html" target="_blank">Review 页面</a> 来完成这个闭环。</p>
+    <p class="rv zh">Prompt 工程不是一次性的。需要持续观察效果，发现问题，迭代改进。Aime 内置了一个 <a href="https://aime.ning.codes/review.html" target="_blank">Review 页面</a> 来完成这个闭环。</p>
+    <p class="rv en">Prompt engineering isn't a one-time thing. You need to continuously observe effects, discover issues, and iterate improvements. Aime has a built-in <a href="https://aime.ning.codes/review.html" target="_blank">Review page</a> to close this loop.</p>
 
-    <h3 class="rv">数据采集</h3>
+    <h3 class="rv zh">数据采集</h3>
+    <h3 class="rv en">Data Collection</h3>
 
-    <p class="rv">每次对话交互自动保存到 Redis——用户消息、AI 回复、上下文历史、session ID。不阻塞响应，fire-and-forget 模式。</p>
+    <p class="rv zh">每次对话交互自动保存到 Redis——用户消息、AI 回复、上下文历史、session ID。不阻塞响应，fire-and-forget 模式。</p>
+    <p class="rv en">Every conversation interaction is automatically saved to Redis — user messages, AI replies, context history, session ID. Non-blocking, fire-and-forget.</p>
 
-    <h3 class="rv">Review 功能</h3>
+    <h3 class="rv zh">Review 功能</h3>
+    <h3 class="rv en">Review Features</h3>
 
-    <div class="insight-grid">
+    <div class="insight-grid zh">
       <div class="insight-card rv">
         <h4>双视图模式</h4>
         <p><strong>Session View</strong>：按会话分组，看完整对话流。<strong>Flat View</strong>：逐条查看，适合快速扫描。</p>
@@ -745,25 +908,54 @@
         <p>一键导出所有对话数据。可以用来做进一步分析，或作为 fine-tuning 训练集。</p>
       </div>
     </div>
+    <div class="insight-grid en">
+      <div class="insight-card rv">
+        <h4>Dual View Mode</h4>
+        <p><strong>Session View</strong>: Grouped by session, see full conversation flow. <strong>Flat View</strong>: One-by-one, ideal for quick scanning.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Rating System</h4>
+        <p>Each interaction can be marked Good / Bad. Used to track quality changes before and after prompt adjustments.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Filters</h4>
+        <p>All / Unrated / Good / Bad with real-time counts. Quickly locate problematic replies.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>JSON Export</h4>
+        <p>One-click export of all conversation data. Can be used for further analysis or as a fine-tuning training set.</p>
+      </div>
+    </div>
 
-    <h3 class="rv">迭代循环</h3>
+    <h3 class="rv zh">迭代循环</h3>
+    <h3 class="rv en">Iteration Cycle</h3>
 
-    <div class="diagram rv">1. 部署新 prompt → 用户聊天
+    <div class="diagram rv zh">1. 部署新 prompt → 用户聊天
 2. Review 页面查看对话质量
 3. 发现问题（太长/太生硬/风格偏离）
 4. 调整 prompt（改规则/换 examples/调参数）
 5. 重新部署 → 回到步骤 1
 
 <span class="dim">每轮迭代只需要改一个文件，部署一次 vercel --prod</span></div>
+    <div class="diagram rv en">1. Deploy new prompt → users chat
+2. Review page: inspect conversation quality
+3. Spot issues (too long / too stiff / style drift)
+4. Adjust prompt (change rules / swap examples / tune params)
+5. Redeploy → back to step 1
+
+<span class="dim">Each iteration: edit one file, deploy once with vercel --prod</span></div>
 
     <hr class="section-divider">
 
     <!-- 9 -->
-    <h2 id="boundaries" class="rv">安全<em>边界</em></h2>
+    <h2 id="boundaries" class="rv zh">安全<em>边界</em></h2>
+    <h2 class="rv en">Safety <em>Boundaries</em></h2>
 
-    <p class="rv">Persona chatbot 有一个独特风险：它在扮演一个<strong>真人</strong>。如果 AI 编造了不存在的个人信息，或者泄露了敏感数据，后果比普通 chatbot 严重得多。</p>
+    <p class="rv zh">Persona chatbot 有一个独特风险：它在扮演一个<strong>真人</strong>。如果 AI 编造了不存在的个人信息，或者泄露了敏感数据，后果比普通 chatbot 严重得多。</p>
+    <p class="rv en">Persona chatbots have a unique risk: they're impersonating a <strong>real person</strong>. If the AI fabricates non-existent personal information or leaks sensitive data, the consequences are far more serious than with a regular chatbot.</p>
 
-    <p class="rv">System prompt 中有一个明确的"最重要"规则区：</p>
+    <p class="rv zh">System prompt 中有一个明确的"最重要"规则区：</p>
+    <p class="rv en">The system prompt has an explicit "most important" rules section:</p>
 
     <div class="code-block rv"><span class="cm">// System prompt 安全边界（节选）</span>
 
@@ -776,26 +968,33 @@
 - <span class="str">不编造个人信息——只说上面提供的基本信息</span></div>
 
     <div class="callout rv">
-      <b>设计原则：</b>白名单 > 黑名单。不是"不要说 X"，而是"只能说这些"。AI 只了解 prompt 中提供的个人信息，超出范围的一律用幽默化解：<code>"这个我不太方便说哈"</code>。
+      <b class="zh">设计原则：</b><b class="en">Design Principle:</b>
+      <span class="zh">白名单 > 黑名单。不是"不要说 X"，而是"只能说这些"。AI 只了解 prompt 中提供的个人信息，超出范围的一律用幽默化解：<code>"这个我不太方便说哈"</code>。</span>
+      <span class="en">Whitelist > Blacklist. Not "don't say X", but "you can only say these things". The AI only knows personal information provided in the prompt. Anything beyond that is deflected with humor: <code>"I'd rather not say haha"</code>.</span>
     </div>
 
     <hr class="section-divider">
 
     <!-- 10 -->
-    <h2 id="conclusion" class="rv"><em>总结</em></h2>
+    <h2 id="conclusion" class="rv zh"><em>总结</em></h2>
+    <h2 class="rv en"><em>Conclusion</em></h2>
 
-    <p class="rv">Aime 的核心公式：</p>
+    <p class="rv zh">Aime 的核心公式：</p>
+    <p class="rv en">Aime's core formula:</p>
 
     <div class="diagram rv"><span class="hl">真实的 Persona</span> = 统计量化的说话风格
                  + 精选的对话 Examples
                  + 严格的安全边界
                  + 持续的 Review 迭代</div>
 
-    <p class="rv">不需要微调。不需要训练数据。不需要 GPU。</p>
+    <p class="rv zh">不需要微调。不需要训练数据。不需要 GPU。</p>
+    <p class="rv en">No fine-tuning needed. No training data. No GPU.</p>
 
-    <p class="rv">一个 BeautifulSoup 解析脚本、一个统计分析脚本、一个好的 system prompt。三个组件就能让 AI 学会一个真人的聊天风格——精确到每条消息的平均字数和 emoji 使用频率。</p>
+    <p class="rv zh">一个 BeautifulSoup 解析脚本、一个统计分析脚本、一个好的 system prompt。三个组件就能让 AI 学会一个真人的聊天风格——精确到每条消息的平均字数和 emoji 使用频率。</p>
+    <p class="rv en">A BeautifulSoup parsing script, a statistical analysis script, a well-crafted system prompt. Three components are all it takes to teach AI a real person's chat style — precise down to average character count and emoji usage frequency.</p>
 
-    <p class="rv">如果你也想做一个 persona chatbot，不要从模型微调开始。从数据开始。先量化你的说话习惯，再让 AI 执行这些数字。</p>
+    <p class="rv zh">如果你也想做一个 persona chatbot，不要从模型微调开始。从数据开始。先量化你的说话习惯，再让 AI 执行这些数字。</p>
+    <p class="rv en">If you also want to build a persona chatbot, don't start with model fine-tuning. Start with data. First quantify your speaking habits, then let AI execute those numbers.</p>
 
     <div class="callout rv">
       <b>Try it:</b> <a href="https://aime.ning.codes" target="_blank">aime.ning.codes</a> · <a href="https://aime.ning.codes/showcase.html" target="_blank">Technical Showcase</a>
@@ -820,6 +1019,13 @@ const obs = new IntersectionObserver((entries) => {
 }, { threshold: 0.08 });
 
 document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+// Language toggle
+const langToggle = document.getElementById('langToggle');
+langToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('lang-en');
+  langToggle.textContent = document.documentElement.classList.contains('lang-en') ? '中文' : 'EN';
+});
 </script>
 
 </body>
