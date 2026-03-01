@@ -1,15 +1,16 @@
-import React from 'react'
-import { Heart } from 'lucide-react'
+import { useTranslation } from '../i18n/LanguageContext'
 
 export const Footer: React.FC = () => {
+  const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="footer">
-      <p>
-        Built with <Heart size={14} className="heart-icon" /> using React + TypeScript + Vite
-      </p>
-      <p className="footer-copy">© {currentYear} Ning. All rights reserved.</p>
+    <footer className="site-footer">
+      <span>&copy; {currentYear} ning.codes</span>
+      <span className="made">
+        <span className="heart"></span>
+        {t('footer.tagline')}
+      </span>
     </footer>
   )
 }

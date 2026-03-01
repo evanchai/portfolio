@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ning — Thoughts & ideas on AI, vibe coding, and building products." />
+  <title>Thoughts — Ning</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,200;1,9..144,300;1,9..144,400&family=Noto+Sans+SC:wght@200;300;400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f0ebe4;
+      --bg2: #e7e0d6;
+      --card: #f6f2ec;
+      --text: #2e2b26;
+      --text-2: #6d665c;
+      --text-3: #a69e94;
+      --olive: #5e7050;
+      --olive-light: #7a9469;
+      --olive-bg: rgba(94,112,80,0.07);
+      --line: #d4ccc2;
+      --serif: 'Fraunces', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --mono: 'Space Mono', monospace;
+    }
+
+    html { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+    }
+
+    ::selection { background: var(--olive); color: #fff; }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: flex;
+      justify-content: flex-end;
+      padding: 2rem 0 0;
+    }
+
+    .back-link a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-3);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.3s ease;
+    }
+
+    .back-link a:hover { color: var(--olive); }
+
+    /* ── Header ── */
+    .page-header {
+      padding: 3rem 0 3.5rem;
+    }
+
+    .page-header h1 {
+      font-family: var(--serif);
+      font-weight: 200;
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .page-header h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--olive);
+    }
+
+    /* ── Loading ── */
+    .loading {
+      text-align: center;
+      color: var(--text-3);
+      font-size: 0.8rem;
+      padding: 3rem 0;
+    }
+
+    /* ── Thought cards ── */
+    .thoughts-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-bottom: 6rem;
+    }
+
+    .thought-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.5rem 1.8rem;
+      transition: all 0.4s ease;
+      opacity: 0;
+      transform: translateY(18px);
+      position: relative;
+    }
+
+    .thought-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .thought-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--olive-light);
+      box-shadow: 0 16px 48px rgba(46,43,38,0.06);
+    }
+
+    .thought-date {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 0.8rem;
+    }
+
+    .thought-text {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-line;
+    }
+
+    .thought-text-en {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--text);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .thought-tags {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .thought-tag {
+      font-size: 0.65rem;
+      color: var(--olive);
+      letter-spacing: 0.04em;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-3);
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s, color 0.3s;
+      line-height: 1;
+      padding: 0.2rem;
+    }
+
+    .thought-card:hover .delete-btn { opacity: 1; }
+    .delete-btn:hover { color: #c0392b; }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--olive);
+      color: #fff;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(94,112,80,0.3);
+      transition: all 0.3s ease;
+      z-index: 50;
+    }
+
+    .fab:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 40px rgba(94,112,80,0.4);
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(46,43,38,0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 24px 80px rgba(46,43,38,0.15);
+    }
+
+    .modal h2 {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    .modal textarea {
+      width: 100%;
+      min-height: 120px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--text);
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+
+    .modal textarea:focus {
+      outline: none;
+      border-color: var(--olive);
+    }
+
+    .modal input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text-2);
+      margin-top: 0.8rem;
+      transition: border-color 0.3s;
+    }
+
+    .modal input[type="text"]:focus {
+      outline: none;
+      border-color: var(--olive);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-cancel {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--text-2);
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text-3);
+    }
+
+    .btn-submit {
+      background: var(--olive);
+      border: 1px solid var(--olive);
+      color: #fff;
+    }
+
+    .btn-submit:hover {
+      background: var(--olive-light);
+      border-color: var(--olive-light);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      border-top: 1px solid var(--line);
+      padding: 1.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.62rem;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+
+    .page-footer .made {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-footer .heart {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--olive);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .page { padding: 0 1.2rem; }
+      .page-header { padding: 2rem 0 2.5rem; }
+      .page-header h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
+      .thought-card { padding: 1.2rem 1.4rem; border-radius: 12px; }
+      .thought-text { font-size: 1rem; }
+      .page-footer { flex-direction: column; gap: 0.5rem; }
+      .fab { bottom: 1.5rem; right: 1.5rem; width: 48px; height: 48px; font-size: 1.3rem; }
+      .modal { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="back-link">
+      <a href="/">← ning.codes</a>
+    </div>
+
+    <header class="page-header">
+      <h1>Thoughts &<br><em>ideas</em></h1>
+    </header>
+
+    <div class="thoughts-feed" id="feed">
+      <div class="loading" id="loading">Loading...</div>
+    </div>
+
+    <footer class="page-footer">
+      <span>&copy; 2025 Ning</span>
+      <span class="made"><span class="heart"></span> vibed into existence</span>
+    </footer>
+  </div>
+
+  <button class="fab" id="fab" title="New thought">+</button>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h2>New thought</h2>
+      <textarea id="thought-text" placeholder="写点什么..."></textarea>
+      <input type="text" id="thought-tags" placeholder="Tags (comma separated, e.g. ai, product)">
+      <div class="modal-actions">
+        <button class="btn btn-cancel" id="btn-cancel">Cancel</button>
+        <button class="btn btn-submit" id="btn-submit">Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const feed = document.getElementById('feed');
+    const loading = document.getElementById('loading');
+    const fab = document.getElementById('fab');
+    const modal = document.getElementById('modal');
+    const btnCancel = document.getElementById('btn-cancel');
+    const btnSubmit = document.getElementById('btn-submit');
+    const textInput = document.getElementById('thought-text');
+    const tagsInput = document.getElementById('thought-tags');
+
+    let authed = false;
+
+    function getPassword() {
+      let pw = sessionStorage.getItem('thoughts_pw');
+      if (!pw) {
+        pw = prompt('Password:');
+        if (pw) sessionStorage.setItem('thoughts_pw', pw);
+      }
+      return pw;
+    }
+
+    function authHeaders() {
+      return { 'Authorization': 'Bearer ' + (sessionStorage.getItem('thoughts_pw') || '') };
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function renderTextHtml(text) {
+      // Split by double newline: first part = Chinese, second = English
+      var parts = text.split(/\n\n/);
+      var html = '<div class="thought-text">' + escapeHtml(parts[0]) + '</div>';
+      if (parts.length > 1) {
+        html += '<div class="thought-text-en">' + escapeHtml(parts.slice(1).join('\n\n')) + '</div>';
+      }
+      return html;
+    }
+
+    function renderCard(t, i) {
+      const card = document.createElement('div');
+      card.className = 'thought-card';
+      card.dataset.id = t.id;
+
+      let deleteBtn = '';
+      if (authed) {
+        deleteBtn = '<button class="delete-btn" title="Delete">&times;</button>';
+      }
+
+      card.innerHTML =
+        deleteBtn +
+        '<div class="thought-date">' + escapeHtml(t.date) + '</div>' +
+        renderTextHtml(t.text) +
+        '<div class="thought-tags">' + t.tags.map(function(tag) { return '<span class="thought-tag">#' + escapeHtml(tag) + '</span>'; }).join('') + '</div>';
+
+      feed.appendChild(card);
+
+      if (authed) {
+        card.querySelector('.delete-btn').addEventListener('click', function() {
+          deleteThought(t.id, card);
+        });
+      }
+
+      setTimeout(function() { card.classList.add('visible'); }, 80 + i * 100);
+    }
+
+    async function loadThoughts() {
+      try {
+        const res = await fetch('/api/thoughts');
+        const data = await res.json();
+        loading.remove();
+
+        if (data.length === 0) {
+          feed.innerHTML = '<div class="loading">No thoughts yet.</div>';
+          return;
+        }
+
+        data.forEach(function(t, i) { renderCard(t, i); });
+      } catch (err) {
+        loading.textContent = 'Failed to load thoughts.';
+      }
+    }
+
+    function enableDeleteButtons() {
+      feed.querySelectorAll('.thought-card').forEach(function(card) {
+        if (card.querySelector('.delete-btn')) return;
+        var btn = document.createElement('button');
+        btn.className = 'delete-btn';
+        btn.title = 'Delete';
+        btn.innerHTML = '&times;';
+        btn.addEventListener('click', function() {
+          deleteThought(card.dataset.id, card);
+        });
+        card.insertBefore(btn, card.firstChild);
+      });
+    }
+
+    fab.addEventListener('click', function() {
+      const pw = getPassword();
+      if (!pw) return;
+      authed = true;
+      enableDeleteButtons();
+      modal.classList.add('open');
+      textInput.focus();
+    });
+
+    btnCancel.addEventListener('click', function() {
+      modal.classList.remove('open');
+      textInput.value = '';
+      tagsInput.value = '';
+    });
+
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+      }
+    });
+
+    btnSubmit.addEventListener('click', async function() {
+      const text = textInput.value.trim();
+      if (!text) return;
+
+      const tags = tagsInput.value
+        .split(',')
+        .map(function(s) { return s.trim(); })
+        .filter(Boolean);
+
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Translating...';
+
+      try {
+        const res = await fetch('/api/thoughts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ text: text, tags: tags })
+        });
+
+        if (res.status === 401) {
+          sessionStorage.removeItem('thoughts_pw');
+          alert('Wrong password.');
+          authed = false;
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Publish';
+          return;
+        }
+
+        const thought = await res.json();
+
+        modal.classList.remove('open');
+        textInput.value = '';
+        tagsInput.value = '';
+
+        // Re-render: prepend new card
+        const firstCard = feed.querySelector('.thought-card');
+        const card = document.createElement('div');
+        card.className = 'thought-card';
+        card.dataset.id = thought.id;
+
+        card.innerHTML =
+          '<button class="delete-btn" title="Delete">&times;</button>' +
+          '<div class="thought-date">' + escapeHtml(thought.date) + '</div>' +
+          renderTextHtml(thought.text) +
+          '<div class="thought-tags">' + thought.tags.map(function(tag) { return '<span class="thought-tag">#' + escapeHtml(tag) + '</span>'; }).join('') + '</div>';
+
+        card.querySelector('.delete-btn').addEventListener('click', function() {
+          deleteThought(thought.id, card);
+        });
+
+        if (firstCard) {
+          feed.insertBefore(card, firstCard);
+        } else {
+          // Remove "No thoughts yet" message if present
+          feed.innerHTML = '';
+          feed.appendChild(card);
+        }
+
+        setTimeout(function() { card.classList.add('visible'); }, 50);
+      } catch (err) {
+        alert('Failed to publish.');
+      }
+
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Publish';
+    });
+
+    async function deleteThought(id, cardEl) {
+      if (!confirm('Delete this thought?')) return;
+
+      try {
+        const res = await fetch('/api/thoughts', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ id: id })
+        });
+
+        if (res.status === 401) {
+          sessionStorage.removeItem('thoughts_pw');
+          alert('Wrong password.');
+          authed = false;
+          return;
+        }
+
+        cardEl.style.opacity = '0';
+        cardEl.style.transform = 'translateY(-10px)';
+        setTimeout(function() { cardEl.remove(); }, 400);
+      } catch (err) {
+        alert('Failed to delete.');
+      }
+    }
+
+    loadThoughts();
+  </script>
+</body>
+</html>

@@ -1,39 +1,16 @@
-import React from 'react'
-import { Github, Mail, Sparkles } from 'lucide-react'
-import { socialLinks } from '../data/projects'
-
-export const Header: React.FC = () => {
+export const Nav: React.FC = () => {
   return (
-    <header className="header">
-      <div className="header-content">
-        <div className="header-title">
-          <Sparkles className="sparkle-icon" size={32} />
-          <h1>Ning's Vibe Coding</h1>
-        </div>
-
-        <p className="header-subtitle">
-          Building delightful AI-powered experiences
-        </p>
-
-        <div className="social-links">
-          <a
-            href={socialLinks.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-link"
-            aria-label="GitHub"
-          >
-            <Github size={20} />
-          </a>
-          <a
-            href={`mailto:${socialLinks.email}`}
-            className="social-link"
-            aria-label="Email"
-          >
-            <Mail size={20} />
-          </a>
-        </div>
+    <nav>
+      <div className="inner">
+        <a href="#" className="logo">
+          <span className="dot"></span>
+          ning.codes
+        </a>
+        <ul className="nav-links">
+          <li><a href="#projects">projects</a></li>
+          <li><a href="#about">about</a></li>
+        </ul>
       </div>
-    </header>
+    </nav>
   )
 }

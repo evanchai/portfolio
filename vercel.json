@@ -1,4 +1,8 @@
 {
+  "cleanUrls": true,
+  "functions": {
+    "api/thoughts.ts": { "maxDuration": 30 }
+  },
   "headers": [
     {
       "source": "/(.*)",
