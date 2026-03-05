@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from 'react'
 import { LanguageToggle } from './components/LanguageToggle'
-import { ProductShowcase } from './components/ProductShowcase'
+import { ShowcaseCarousel } from './components/ShowcaseCarousel'
 import { Footer } from './components/Footer'
 import { projects, socialLinks } from './data/projects'
 import { useTranslation } from './i18n/LanguageContext'
@@ -57,15 +57,8 @@ function App() {
         </div>
       </section>
 
-      {/* Product Showcases — one screen per product */}
-      {projects.map((project, i) => (
-        <ProductShowcase
-          key={project.slug}
-          project={project}
-          reverse={i % 2 === 1}
-          alt={i % 2 === 1}
-        />
-      ))}
+      {/* Product Showcases — carousel */}
+      <ShowcaseCarousel projects={projects} />
 
       {/* About + Footer */}
       <section className="about-screen">

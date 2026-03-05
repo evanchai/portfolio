@@ -161,71 +161,83 @@ function MuseoDemo() {
   )
 }
 
+/* ── poker: Dark chassis, 2×2 neon keycap grid (faithful to MechKeys) ── */
 function PokerDemo() {
   return (
-    <div className="dm-keys">
-      <div className="dm-key" data-label="Cherry MX Blue">
-        <div className="dm-keycap">A</div>
-      </div>
-      <div className="dm-key" data-label="Gateron Brown">
-        <div className="dm-keycap">S</div>
-      </div>
-      <div className="dm-key" data-label="Holy Panda">
-        <div className="dm-keycap">D</div>
-      </div>
-      <div className="dm-key" data-label="Topre 45g">
-        <div className="dm-keycap">F</div>
+    <div className="dm-poker">
+      <div className="dm-poker-grid">
+        <div className="dm-pk dm-pk-q"><span>给我擦皮鞋</span></div>
+        <div className="dm-pk dm-pk-w"><span>我要验牌</span></div>
+        <div className="dm-pk dm-pk-e"><span>牌没有问题</span></div>
+        <div className="dm-pk dm-pk-r"><span>随机</span></div>
       </div>
     </div>
   )
 }
 
+/* ── airwave: Premium dark podcast player with cover art + waveform ── */
 function AirwaveDemo() {
   return (
-    <Phone className="dm-dark">
-      <div className="dp-header">Airwave</div>
-      <div className="dm-aw">
-        <div className="dm-aw-card dm-aw-active">
-          <div className="dm-aw-topic">The Future of AI</div>
-          <div className="dm-aw-meta">AI · 3:42</div>
-          <div className="dm-aw-wave">▁▂▃▅▂▇▅▃▂▅▇▃▁▂▅▃</div>
+    <Phone className="dm-airwave">
+      <div className="dm-aw-header">
+        <div className="dm-aw-dot" />
+        <span className="dm-aw-brand">AIRWAVE</span>
+      </div>
+      <div className="dm-aw-body">
+        <div className="dm-aw-cover">
+          <span className="dm-aw-dur">12:30</span>
         </div>
-        <div className="dm-aw-card">
-          <div className="dm-aw-topic">Philosophy of Consciousness</div>
-          <div className="dm-aw-meta">Philosophy · 4:15</div>
+        <div className="dm-aw-title">The Future of AI Agents</div>
+        <div className="dm-aw-sub">AI Weekly · 2.4k plays</div>
+        <div className="dm-aw-bars">
+          {[...Array(24)].map((_, i) => (
+            <div key={i} className="dm-aw-bar" style={{ animationDelay: `${i * 0.06}s` }} />
+          ))}
         </div>
-        <div className="dm-aw-card">
-          <div className="dm-aw-topic">Late Night Thoughts</div>
-          <div className="dm-aw-meta">Casual · 2:58</div>
+        <div className="dm-aw-prog">
+          <span>3:42</span>
+          <div className="dm-aw-pbar"><div className="dm-aw-pfill" /></div>
+          <span>12:30</span>
+        </div>
+        <div className="dm-aw-ctrl">
+          <span className="dm-aw-skip">⏮</span>
+          <div className="dm-aw-play">▶</div>
+          <span className="dm-aw-skip">⏭</span>
         </div>
       </div>
     </Phone>
   )
 }
 
+/* ── tunes: iPod Classic with metallic body, screen, click wheel ── */
 function TunesDemo() {
   return (
-    <Phone className="dm-dark">
-      <div className="dp-header">Tunes</div>
-      <div className="dm-tunes">
-        <div className="dm-tunes-album" />
-        <div className="dm-tunes-song">Midnight Drive</div>
-        <div className="dm-tunes-artist">Lo-Fi Beats</div>
-        <div className="dm-tunes-progress">
-          <div className="dm-tunes-bar"><div className="dm-tunes-fill" /></div>
-          <div className="dm-tunes-times"><span>1:23</span><span>3:45</span></div>
+    <div className="dm-ipod">
+      <div className="dm-ipod-top">Tunes</div>
+      <div className="dm-ipod-screen">
+        <div className="dm-ipod-np">
+          <span>Now Playing</span>
+          <span className="dm-ipod-idx">01 / 12</span>
         </div>
-        <div className="dm-tunes-ctrl">
-          <span>⏮</span>
-          <span className="dm-tunes-play">▶</span>
-          <span>⏭</span>
+        <div className="dm-ipod-vis">
+          <div className="dm-ipod-eq">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="dm-ipod-eqbar" style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
         </div>
-        <div className="dm-tunes-next">
-          <div className="dm-tunes-label">Up Next</div>
-          <div className="dm-tunes-qi"><span>Sunset Boulevard</span><span className="dm-tunes-qa">Chill Hop</span></div>
-          <div className="dm-tunes-qi"><span>Ocean Drive</span><span className="dm-tunes-qa">Synthwave</span></div>
+        <div className="dm-ipod-track">
+          <div className="dm-ipod-song">Midnight Drive</div>
+          <div className="dm-ipod-artist">Lo-Fi Beats</div>
         </div>
       </div>
-    </Phone>
+      <div className="dm-ipod-wheel">
+        <span className="dm-wh-t">MENU</span>
+        <span className="dm-wh-l">◀◀</span>
+        <span className="dm-wh-r">▶▶</span>
+        <span className="dm-wh-b">▶ ||</span>
+        <div className="dm-wh-center">♥</div>
+      </div>
+    </div>
   )
 }
