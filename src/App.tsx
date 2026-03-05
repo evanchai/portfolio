@@ -58,7 +58,7 @@ function App() {
       </section>
 
       {/* Product Showcases — carousel */}
-      <ShowcaseCarousel projects={projects} />
+      <ShowcaseCarousel projects={projects.filter(p => p.visible !== false)} />
 
       {/* About + Footer */}
       <section className="about-screen">

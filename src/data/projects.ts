@@ -3,6 +3,7 @@ export interface Project {
   slug: string
   url: string
   image: string
+  visible?: boolean
 }
 
 export const projects: Project[] = [
@@ -40,13 +41,15 @@ export const projects: Project[] = [
     name: 'Airwave',
     slug: 'airwave',
     url: 'https://airwave.ning.codes',
-    image: '/images/airwave.svg'
+    image: '/images/airwave.svg',
+    visible: false
   },
   {
     name: 'Tunes',
     slug: 'tunes',
     url: 'https://tunes.ning.codes',
-    image: '/images/tunes.svg'
+    image: '/images/tunes.svg',
+    visible: false
   }
 ]
 
