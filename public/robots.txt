@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ning.codes/sitemap.xml
