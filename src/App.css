@@ -16,7 +16,7 @@
   --mono: 'Space Mono', monospace;
 }
 
-html { height: 100%; }
+html { height: 100%; overflow-x: hidden; }
 
 body {
   background: var(--bg);
@@ -28,6 +28,7 @@ body {
   -webkit-font-smoothing: antialiased;
   height: 100%;
   overflow: hidden;
+  overflow-x: hidden;
 }
 
 ::selection { background: var(--olive); color: #fff; }
@@ -39,6 +40,7 @@ body {
   height: 100vh;
   height: 100dvh;
   overflow-y: auto;
+  overflow-x: hidden;
   scroll-snap-type: y proximity;
   scroll-behavior: smooth;
 }
@@ -423,6 +425,16 @@ body {
 
 /* Tablet */
 @media(max-width: 900px) {
+  body { overflow: auto; overflow-x: hidden; height: auto; }
+  #root { height: auto; }
+  .scroll-wrapper {
+    height: auto;
+    overflow-y: visible;
+    overflow-x: hidden;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+
   .container { padding: 0 1.5rem; }
   .container.wide { padding: 0 3rem; }
   .lang-toggle-wrap { right: 1.5rem; }
@@ -434,16 +446,26 @@ body {
     gap: 2.5rem;
   }
   .showcase-name { font-size: 2rem; }
+
+  .showcase {
+    min-height: auto;
+    scroll-snap-align: none;
+  }
+  .about-screen {
+    min-height: auto;
+    scroll-snap-align: none;
+  }
 }
 
 /* Mobile */
 @media(max-width: 600px) {
   /* Disable scroll-snap on mobile — let page scroll naturally */
-  body { overflow: auto; height: auto; }
+  body { overflow: auto; overflow-x: hidden; height: auto; }
   #root { height: auto; }
   .scroll-wrapper {
     height: auto;
     overflow-y: visible;
+    overflow-x: hidden;
     scroll-snap-type: none;
     scroll-behavior: auto;
   }
