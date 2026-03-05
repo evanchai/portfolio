@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from 'react'
 import { LanguageToggle } from './components/LanguageToggle'
-import { ProjectCard } from './components/ProjectCard'
+import { ProductShowcase } from './components/ProductShowcase'
 import { Footer } from './components/Footer'
 import { projects, socialLinks } from './data/projects'
 import { useTranslation } from './i18n/LanguageContext'
@@ -57,17 +57,19 @@ function App() {
         </div>
       </section>
 
-      {/* Screen 2 — Projects + About */}
-      <section className="screen-two">
-        <div className="container">
-          <section className="projects-sec" id="projects">
-            <div className="projects-grid stagger">
-              {projects.map((project) => (
-                <ProjectCard key={project.slug} project={project} />
-              ))}
-            </div>
-          </section>
+      {/* Product Showcases — one screen per product */}
+      {projects.map((project, i) => (
+        <ProductShowcase
+          key={project.slug}
+          project={project}
+          reverse={i % 2 === 1}
+          alt={i % 2 === 1}
+        />
+      ))}
 
+      {/* About + Footer */}
+      <section className="about-screen">
+        <div className="container">
           <section className="about-sec" id="about">
             <div className="about-content">
               <p className="about-text rv">
