@@ -157,11 +157,11 @@ function MuseoDemo() {
       </div>
       <div className="dm-museo-body">
         <div className="dm-museo-frame">
-          <div className="dm-museo-art" />
+          <img src="/images/monet.jpg" alt="Water Lilies" className="dm-museo-art" />
         </div>
         <div className="dm-museo-divider" />
         <div className="dm-museo-analysis">
-          <div className="dm-museo-text">Bold, swirling brushstrokes convey turbulent emotion and inner turmoil. The <em>cypress tree</em> reaches toward a dynamic sky filled with luminous stars and a crescent moon, while a quiet village sleeps below.</div>
+          <div className="dm-museo-text">Soft, dissolving brushstrokes blur the boundary between water and sky. <em>Water lilies</em> float across a shimmering surface, their reflections merging with clouds above — a meditation on light, color, and the passage of time.</div>
         </div>
       </div>
     </Phone>

@@ -468,21 +468,8 @@
 
 .dm-museo-art {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(170deg, #0d1b2a, #1a237e 35%, #283593 55%, #1565c0 75%, #0d47a1);
-  position: relative;
-}
-
-.dm-museo-art::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 25%, rgba(255,249,196,0.8) 1px, transparent 2px),
-    radial-gradient(circle at 65% 15%, rgba(255,249,196,0.6) 1px, transparent 2px),
-    radial-gradient(circle at 45% 55%, rgba(255,249,196,0.7) 1px, transparent 2px),
-    radial-gradient(circle at 80% 40%, rgba(255,249,196,0.5) 1px, transparent 2px),
-    radial-gradient(circle at 35% 75%, rgba(255,249,196,0.6) 1px, transparent 2px);
+  display: block;
+  object-fit: cover;
 }
 
 .dm-museo-divider {
