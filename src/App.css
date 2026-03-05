@@ -490,35 +490,32 @@ body {
   .showcase {
     min-height: auto;
     padding: 1.5rem 0 2rem;
-    align-items: flex-start;
+    align-items: center;
     scroll-snap-align: none;
   }
 
   /* Tab selector */
   .showcase-tabs {
     display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
     padding-bottom: 1.2rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
-  .showcase-tabs::-webkit-scrollbar { display: none; }
 
   .showcase-tab {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.4rem 0.75rem;
+    gap: 0.3rem;
+    padding: 0.35rem 0.65rem;
     border: 1px solid var(--line);
     border-radius: 100px;
     background: none;
     font-family: var(--mono);
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     color: var(--text-2);
     white-space: nowrap;
     cursor: pointer;
-    flex-shrink: 0;
     transition: all 0.3s ease;
   }
   .showcase-tab.active {
@@ -527,13 +524,20 @@ body {
     background: var(--olive-bg);
   }
   .showcase-tab-icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  /* Keep carousel horizontal, switch via tabs */
+  /* Replace carousel with show/hide — no flex row, no translateX */
+  .carousel-viewport { overflow: visible; }
+  .carousel-track {
+    display: block;
+    transform: none !important;
+  }
+  .carousel-slide { display: none; min-width: 0; }
+  .carousel-slide.active { display: block; }
   .carousel-nav { display: none; }
 
   .showcase-inner {

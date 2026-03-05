@@ -49,8 +49,8 @@ export const ShowcaseCarousel: React.FC<{ projects: Project[] }> = ({ projects }
           }}
         >
           <div className="carousel-track" style={{ transform: `translateX(-${idx * 100}%)` }}>
-            {projects.map((p) => (
-              <div key={p.slug} className="carousel-slide">
+            {projects.map((p, i) => (
+              <div key={p.slug} className={`carousel-slide${i === idx ? ' active' : ''}`}>
                 <div className="showcase-inner v">
                   <div className="showcase-intro">
                     <div className="showcase-icon">
