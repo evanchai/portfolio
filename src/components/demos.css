@@ -820,22 +820,63 @@
    ══════════════════════════════════════════ */
 
 @media (max-width: 600px) {
-  .demo-phone { width: 220px; max-width: 100%; border-radius: 22px; font-size: 13px; }
-  .dm-aime-hdr-avatar { width: 28px; height: 28px; }
-  .dm-aime-hdr-name { font-size: 13px; }
-  .dm-logos-avatar { width: 44px; height: 44px; font-size: 18px; }
-  .dm-bubble { font-size: 12px; padding: 8px 12px; }
-  .dm-plat-logo { font-size: 18px; }
-  .dm-plat-name { font-size: 12px; }
-  .dm-plat-card { padding: 10px; }
-  .dm-museo-text { font-size: 11px; line-height: 1.9; }
-  .dm-poker { width: 200px; padding: 16px; border-radius: 22px; }
+  .demo-phone { width: 180px; max-width: 80%; border-radius: 20px; font-size: 12px; }
+  .dm-aime-header { padding: 8px 12px; gap: 8px; }
+  .dm-aime-hdr-avatar { width: 24px; height: 24px; }
+  .dm-aime-hdr-name { font-size: 12px; }
+  .dm-aime-hdr-status { font-size: 9px; }
+  .dm-logos-top { padding: 12px 12px 8px; }
+  .dm-logos-avatar { width: 40px; height: 40px; font-size: 16px; }
+  .dm-chat { padding: 8px 12px; gap: 6px; }
+  .dm-bubble { font-size: 11px; padding: 7px 10px; max-width: 80%; }
+  .dm-msg-avatar, .dm-aime .dm-msg-avatar { width: 22px; height: 22px; }
+  .dm-msg-avatar-icon { width: 22px; height: 22px; font-size: 10px; }
+  .dm-input-area { padding: 8px 10px; gap: 8px; }
+  .dm-input-wrap { padding: 6px 12px; }
+  .dm-placeholder { font-size: 12px; }
+  .dm-send-text { font-size: 12px; }
+  .dm-plat-header { padding: 10px 12px 8px; }
+  .dm-plat-logo { font-size: 16px; }
+  .dm-plat-restaurant { font-size: 9px; }
+  .dm-plat-tabs { padding: 0 12px 8px; gap: 4px; }
+  .dm-plat-tab { font-size: 9px; padding: 3px 10px; }
+  .dm-plat-list { padding: 0 12px; gap: 6px; }
+  .dm-plat-card { padding: 10px; border-radius: 12px; }
+  .dm-plat-name { font-size: 11px; }
+  .dm-plat-orig { font-size: 9px; }
+  .dm-plat-price { font-size: 10px; padding: 2px 8px; }
+  .dm-plat-desc { font-size: 9px; }
+  .dm-museo-body { padding: 6px 14px 12px; }
+  .dm-museo-frame { padding: 6px; margin-bottom: 10px; }
+  .dm-museo-text { font-size: 10px; line-height: 1.8; }
+  .dm-poker { width: 160px; padding: 14px; border-radius: 20px; }
   .dm-poker-grid { gap: 8px; }
-  .dm-pk { font-size: 11px; border-radius: 12px; }
-  .dm-ipod { width: 190px; padding: 12px 10px 16px; border-radius: 22px; }
-  .dm-ipod-screen { height: 120px; }
-  .dm-ipod-wheel { width: 115px; height: 115px; }
-  .dm-wh-center { width: 40px; height: 40px; font-size: 13px; }
-  .dm-aw-title { font-size: 14px; }
-  .dm-aw-play { width: 40px; height: 40px; font-size: 14px; }
+  .dm-pk { font-size: 10px; border-radius: 12px; padding: 8px; }
+  .dm-ipod { width: 160px; padding: 10px 8px 14px; border-radius: 20px; }
+  .dm-ipod-screen { height: 100px; }
+  .dm-ipod-np { font-size: 8px; padding: 3px 6px; }
+  .dm-ipod-eq { height: 28px; gap: 3px; }
+  .dm-ipod-eqbar { width: 3px; }
+  .dm-ipod-track { padding: 3px 6px 4px; }
+  .dm-ipod-song { font-size: 9px; }
+  .dm-ipod-artist { font-size: 7px; }
+  .dm-ipod-wheel { width: 100px; height: 100px; }
+  .dm-wh-center { width: 36px; height: 36px; font-size: 12px; }
+  .dm-wh-t, .dm-wh-l, .dm-wh-r, .dm-wh-b { font-size: 6px; }
+  .dm-wh-t { top: 8px; }
+  .dm-wh-l { left: 8px; }
+  .dm-wh-r { right: 8px; }
+  .dm-wh-b { bottom: 8px; }
+  .dm-aw-header { padding: 10px 14px 6px; }
+  .dm-aw-body { padding: 6px 14px 10px; }
+  .dm-aw-cover { border-radius: 12px; margin-bottom: 10px; }
+  .dm-aw-cover::before { font-size: 28px; }
+  .dm-aw-title { font-size: 13px; }
+  .dm-aw-sub { font-size: 9px; margin-bottom: 10px; }
+  .dm-aw-bars { height: 18px; }
+  .dm-aw-bar { width: 2px; }
+  .dm-aw-prog { font-size: 9px; margin-bottom: 8px; }
+  .dm-aw-play { width: 36px; height: 36px; font-size: 12px; }
+  .dm-aw-skip { font-size: 12px; }
+  .dm-aw-ctrl { gap: 18px; }
 }

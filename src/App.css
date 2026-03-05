@@ -438,13 +438,23 @@ body {
 
 /* Mobile */
 @media(max-width: 600px) {
+  /* Disable scroll-snap on mobile — let page scroll naturally */
+  body { overflow: auto; height: auto; }
+  #root { height: auto; }
+  .scroll-wrapper {
+    height: auto;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+
   .container { padding: 0 1.2rem; padding-bottom: env(safe-area-inset-bottom); }
   .container.wide { padding: 0 1.5rem; }
 
   .lang-toggle-wrap { top: 1rem; right: 1.2rem; }
   .lang-toggle { padding: 0.5rem 1rem; font-size: 0.75rem; }
 
-  .hero { height: 100vh; height: 100dvh; }
+  .hero { height: 100vh; height: 100dvh; scroll-snap-align: none; }
   .hero h1 {
     font-size: clamp(2.2rem, 9vw, 3rem);
     max-width: 100%;
@@ -454,7 +464,7 @@ body {
 
   .showcase {
     min-height: auto;
-    padding: 3rem 0;
+    padding: 2.5rem 0;
     align-items: flex-start;
     scroll-snap-align: none;
   }
@@ -466,8 +476,13 @@ body {
   .showcase-icon { margin: 0 auto 1rem; width: 44px; height: 44px; }
   .showcase-name { font-size: 1.5rem; }
   .showcase-tagline { font-size: 0.78rem; margin-bottom: 0.8rem; }
-  .showcase-desc { font-size: 0.75rem; max-width: 100%; margin-bottom: 1.2rem; }
+  .showcase-desc { display: none; }
   .showcase-cta { margin: 0 auto; }
+
+  .showcase-demo {
+    display: flex;
+    justify-content: center;
+  }
 
   .carousel-nav { margin-top: 1.5rem; }
   .carousel-arrow { width: 32px; height: 32px; font-size: 0.7rem; }
@@ -475,7 +490,7 @@ body {
   .about-screen {
     min-height: auto;
     align-items: flex-start;
-    padding: 3rem 0;
+    padding: 2.5rem 0;
     scroll-snap-align: none;
   }
   .about-sec { padding: 2rem 0; }
