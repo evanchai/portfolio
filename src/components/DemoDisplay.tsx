@@ -98,47 +98,70 @@ function LogosDemo() {
 
 /* ── plat, museo, poker, airwave, tunes: unchanged ── */
 
+/* ── plat: Light theme, menu results view with category tabs + dish cards ── */
 function PlatDemo() {
   return (
-    <Phone className="dm-dark">
-      <div className="dp-header">Plat</div>
-      <div className="dm-plat">
-        <div className="dm-plat-photo">
-          <div className="dm-plat-item">鳥の唐揚げ &emsp; ¥880</div>
-          <div className="dm-plat-item">味噌ラーメン &emsp; ¥950</div>
-          <div className="dm-plat-item">天ぷら盛り合わせ &emsp; ¥1,200</div>
-          <div className="dm-plat-scan" />
+    <Phone className="dm-plat">
+      <div className="dm-plat-header">
+        <div className="dm-plat-logo">Plat<span>.</span></div>
+        <div className="dm-plat-restaurant">Ichiran Ramen · Shibuya</div>
+      </div>
+      <div className="dm-plat-tabs">
+        <span className="dm-plat-tab active">Main</span>
+        <span className="dm-plat-tab">Noodles</span>
+        <span className="dm-plat-tab">Sides</span>
+        <span className="dm-plat-tab">Drinks</span>
+      </div>
+      <div className="dm-plat-list">
+        <div className="dm-plat-card">
+          <div className="dm-plat-card-top">
+            <div>
+              <div className="dm-plat-name">Fried Chicken</div>
+              <div className="dm-plat-orig">鳥の唐揚げ</div>
+            </div>
+            <div className="dm-plat-price">¥880</div>
+          </div>
+          <div className="dm-plat-desc">Japanese-style deep-fried chicken, marinated in soy &amp; ginger</div>
         </div>
-        <div className="dm-plat-results">
-          <div className="dm-plat-dish">
-            <div className="dm-plat-name">Fried Chicken (Karaage)</div>
-            <div className="dm-plat-desc">Japanese-style deep-fried chicken, marinated in soy &amp; ginger</div>
+        <div className="dm-plat-card">
+          <div className="dm-plat-card-top">
+            <div>
+              <div className="dm-plat-name">Miso Ramen</div>
+              <div className="dm-plat-orig">味噌ラーメン</div>
+            </div>
+            <div className="dm-plat-price">¥950</div>
           </div>
-          <div className="dm-plat-dish">
-            <div className="dm-plat-name">Miso Ramen</div>
-            <div className="dm-plat-desc">Rich miso broth with noodles, chashu pork, soft-boiled egg</div>
+          <div className="dm-plat-desc">Rich miso broth with noodles, chashu pork, soft-boiled egg</div>
+        </div>
+        <div className="dm-plat-card">
+          <div className="dm-plat-card-top">
+            <div>
+              <div className="dm-plat-name">Assorted Tempura</div>
+              <div className="dm-plat-orig">天ぷら盛り合わせ</div>
+            </div>
+            <div className="dm-plat-price">¥1,200</div>
           </div>
-          <div className="dm-plat-dish">
-            <div className="dm-plat-name">Assorted Tempura</div>
-            <div className="dm-plat-desc">Light-battered shrimp, sweet potato, eggplant, green beans</div>
-          </div>
+          <div className="dm-plat-desc">Light-battered shrimp, sweet potato, eggplant, green beans</div>
         </div>
       </div>
     </Phone>
   )
 }
 
+/* ── museo: Minimalist gallery, artwork in white frame + serif analysis ── */
 function MuseoDemo() {
   return (
-    <Phone className="dm-dark">
-      <div className="dm-museo">
-        <div className="dm-museo-art">
-          <div className="dm-museo-label">Scan artwork</div>
+    <Phone className="dm-museo">
+      <div className="dm-museo-header">
+        <div className="dm-museo-logo"><span>M</span></div>
+      </div>
+      <div className="dm-museo-body">
+        <div className="dm-museo-frame">
+          <div className="dm-museo-art" />
         </div>
-        <div className="dm-museo-info">
-          <div className="dm-museo-title">Starry Night</div>
-          <div className="dm-museo-artist">Vincent van Gogh · 1889</div>
-          <div className="dm-museo-text">Bold, swirling brushstrokes convey turbulent emotion. The cypress tree reaches toward a dynamic sky filled with luminous stars and a crescent moon.</div>
+        <div className="dm-museo-divider" />
+        <div className="dm-museo-analysis">
+          <div className="dm-museo-text">Bold, swirling brushstrokes convey turbulent emotion and inner turmoil. The <em>cypress tree</em> reaches toward a dynamic sky filled with luminous stars and a crescent moon, while a quiet village sleeps below.</div>
         </div>
       </div>
     </Phone>
