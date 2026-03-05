@@ -820,12 +820,22 @@
    ══════════════════════════════════════════ */
 
 @media (max-width: 600px) {
-  .demo-phone { max-width: 100%; border-radius: 20px; }
-  .dm-poker { width: 220px; padding: 18px; border-radius: 24px; }
+  .demo-phone { width: 220px; max-width: 100%; border-radius: 22px; font-size: 13px; }
+  .dm-aime-hdr-avatar { width: 28px; height: 28px; }
+  .dm-aime-hdr-name { font-size: 13px; }
+  .dm-logos-avatar { width: 44px; height: 44px; font-size: 18px; }
+  .dm-bubble { font-size: 12px; padding: 8px 12px; }
+  .dm-plat-logo { font-size: 18px; }
+  .dm-plat-name { font-size: 12px; }
+  .dm-plat-card { padding: 10px; }
+  .dm-museo-text { font-size: 11px; line-height: 1.9; }
+  .dm-poker { width: 200px; padding: 16px; border-radius: 22px; }
   .dm-poker-grid { gap: 8px; }
-  .dm-pk { font-size: 11px; }
-  .dm-ipod { width: 210px; padding: 14px 12px 18px; }
-  .dm-ipod-screen { height: 140px; }
-  .dm-ipod-wheel { width: 130px; height: 130px; }
-  .dm-wh-center { width: 44px; height: 44px; font-size: 14px; }
+  .dm-pk { font-size: 11px; border-radius: 12px; }
+  .dm-ipod { width: 190px; padding: 12px 10px 16px; border-radius: 22px; }
+  .dm-ipod-screen { height: 120px; }
+  .dm-ipod-wheel { width: 115px; height: 115px; }
+  .dm-wh-center { width: 40px; height: 40px; font-size: 13px; }
+  .dm-aw-title { font-size: 14px; }
+  .dm-aw-play { width: 40px; height: 40px; font-size: 14px; }
 }

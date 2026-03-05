@@ -424,6 +424,7 @@ body {
 /* Tablet */
 @media(max-width: 900px) {
   .container { padding: 0 1.5rem; }
+  .container.wide { padding: 0 3rem; }
   .lang-toggle-wrap { right: 1.5rem; }
   .about-content { grid-template-columns: 1fr; gap: 2rem; }
   .about-text { font-size: 1.25rem; }
@@ -438,6 +439,7 @@ body {
 /* Mobile */
 @media(max-width: 600px) {
   .container { padding: 0 1.2rem; padding-bottom: env(safe-area-inset-bottom); }
+  .container.wide { padding: 0 1.5rem; }
 
   .lang-toggle-wrap { top: 1rem; right: 1.2rem; }
   .lang-toggle { padding: 0.5rem 1rem; font-size: 0.75rem; }
@@ -450,19 +452,32 @@ body {
   }
   .hero-desc { font-size: 0.78rem; max-width: 100%; }
 
-  .showcase { padding: 3rem 0; }
+  .showcase {
+    min-height: auto;
+    padding: 3rem 0;
+    align-items: flex-start;
+    scroll-snap-align: none;
+  }
   .showcase-inner {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
-  .showcase-name { font-size: 1.6rem; }
-  .showcase-desc { font-size: 0.78rem; max-width: 100%; }
-  .showcase-icon { width: 48px; height: 48px; }
+  .showcase-intro { text-align: center; }
+  .showcase-icon { margin: 0 auto 1rem; width: 44px; height: 44px; }
+  .showcase-name { font-size: 1.5rem; }
+  .showcase-tagline { font-size: 0.78rem; margin-bottom: 0.8rem; }
+  .showcase-desc { font-size: 0.75rem; max-width: 100%; margin-bottom: 1.2rem; }
+  .showcase-cta { margin: 0 auto; }
 
   .carousel-nav { margin-top: 1.5rem; }
   .carousel-arrow { width: 32px; height: 32px; font-size: 0.7rem; }
 
-  .about-screen { align-items: flex-start; padding-top: 3rem; }
+  .about-screen {
+    min-height: auto;
+    align-items: flex-start;
+    padding: 3rem 0;
+    scroll-snap-align: none;
+  }
   .about-sec { padding: 2rem 0; }
   .about-text { font-size: 1.1rem; line-height: 1.8; }
   .aside-block { margin-bottom: 1.8rem; }
