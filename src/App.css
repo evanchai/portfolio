@@ -130,6 +130,9 @@ body {
   max-width: 1300px;
 }
 
+/* Mobile tab selector — hidden on desktop */
+.showcase-tabs { display: none; }
+
 .showcase-inner {
   display: grid;
   grid-template-columns: 2fr 3fr;
@@ -486,38 +489,65 @@ body {
 
   .showcase {
     min-height: auto;
-    padding: 1rem 0;
+    padding: 1.5rem 0 2rem;
     align-items: flex-start;
     scroll-snap-align: none;
   }
 
-  /* Disable horizontal carousel — stack all projects vertically */
-  .carousel-track {
-    flex-direction: column;
-    transform: none !important;
+  /* Tab selector */
+  .showcase-tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 1.2rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
-  .carousel-slide {
-    min-width: 0;
-    width: 100%;
-    margin-bottom: 2.5rem;
+  .showcase-tabs::-webkit-scrollbar { display: none; }
+
+  .showcase-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    background: none;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-2);
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
   }
+  .showcase-tab.active {
+    border-color: var(--olive);
+    color: var(--olive);
+    background: var(--olive-bg);
+  }
+  .showcase-tab-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* Keep carousel horizontal, switch via tabs */
   .carousel-nav { display: none; }
 
   .showcase-inner {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
   }
+  /* Demo on top, intro below */
+  .showcase-demo { order: -1; display: flex; justify-content: center; }
   .showcase-intro { text-align: center; }
-  .showcase-icon { margin: 0 auto 1rem; width: 44px; height: 44px; }
+  .showcase-icon { display: none; }
   .showcase-name { font-size: 1.5rem; }
-  .showcase-tagline { font-size: 0.78rem; margin-bottom: 0.8rem; }
+  .showcase-tagline { font-size: 0.78rem; margin-bottom: 0.5rem; }
   .showcase-desc { display: none; }
   .showcase-cta { margin: 0 auto; }
-
-  .showcase-demo {
-    display: flex;
-    justify-content: center;
-  }
 
   .about-screen {
     min-height: auto;

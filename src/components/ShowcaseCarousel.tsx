@@ -22,6 +22,20 @@ export const ShowcaseCarousel: React.FC<{ projects: Project[] }> = ({ projects }
   return (
     <section className="showcase">
       <div className="container showcase-container">
+        {/* Mobile tab selector */}
+        <div className="showcase-tabs">
+          {projects.map((p, i) => (
+            <button
+              key={p.slug}
+              className={`showcase-tab${i === idx ? ' active' : ''}`}
+              onClick={() => setIdx(i)}
+            >
+              <img src={p.image} alt={p.name} className="showcase-tab-icon" />
+              <span>{p.name}</span>
+            </button>
+          ))}
+        </div>
+
         <div
           className="carousel-viewport"
           onTouchStart={e => { touchX.current = e.touches[0].clientX }}
