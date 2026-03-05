@@ -9,9 +9,9 @@ export const DemoDisplay: React.FC<{ slug: string }> = ({ slug }) => {
   return Demo ? <Demo /> : null
 }
 
-function Phone({ children, title }: { children: React.ReactNode; title?: string }) {
+function Phone({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="demo-phone">
+    <div className={`demo-phone${className ? ` ${className}` : ''}`}>
       <div className="dp-status">
         <span>9:41</span>
         <div className="dp-right">
@@ -19,66 +19,89 @@ function Phone({ children, title }: { children: React.ReactNode; title?: string 
           <span>▊</span>
         </div>
       </div>
-      {title && <div className="dp-header">{title}</div>}
       <div className="dp-body">{children}</div>
     </div>
   )
 }
 
+/* ── aime: Instagram-style chat, white bg, blue gradient user bubbles ── */
 function AimeDemo() {
   return (
-    <Phone title="aime">
+    <Phone className="dm-aime">
+      <div className="dm-aime-header">
+        <img src="/images/aime.jpg" alt="Ning" className="dm-aime-hdr-avatar" />
+        <div className="dm-aime-hdr-info">
+          <div className="dm-aime-hdr-name">Ning</div>
+          <div className="dm-aime-hdr-status">Active now</div>
+        </div>
+        <div className="dm-aime-hdr-dot" />
+      </div>
       <div className="dm-chat">
-        <div className="dm-msg dm-sent">你好啊 最近在干嘛</div>
+        <div className="dm-msg dm-sent">
+          <div className="dm-bubble">你好啊 最近在干嘛</div>
+        </div>
         <div className="dm-msg dm-recv">
-          <div className="dm-avatar">N</div>
+          <img src="/images/aime.jpg" alt="" className="dm-msg-avatar" />
           <div className="dm-bubble">写代码呢，你呢？又来找我聊天了 😏</div>
         </div>
-        <div className="dm-msg dm-sent">哈哈 想你了</div>
+        <div className="dm-msg dm-sent">
+          <div className="dm-bubble">哈哈 想你了</div>
+        </div>
         <div className="dm-msg dm-recv">
-          <div className="dm-avatar">N</div>
+          <img src="/images/aime.jpg" alt="" className="dm-msg-avatar" />
           <div className="dm-bubble">少来，说吧什么事</div>
         </div>
       </div>
-      <div className="dm-input">
-        <span>Say something...</span>
-        <span className="dm-send">↑</span>
+      <div className="dm-input-area">
+        <div className="dm-input-wrap">
+          <span className="dm-placeholder">Message...</span>
+        </div>
+        <span className="dm-send-text">Send</span>
       </div>
     </Phone>
   )
 }
 
+/* ── logos: God theme, gold colors, large centered avatar ── */
 function LogosDemo() {
   return (
-    <Phone title="Logos">
-      <div className="dm-tabs">
-        <span className="dm-tab active">God</span>
-        <span className="dm-tab">Buddha</span>
-        <span className="dm-tab">Allah</span>
+    <Phone className="dm-logos">
+      <div className="dm-logos-top">
+        <div className="dm-logos-avatar">✦</div>
+        <div className="dm-logos-name">God</div>
       </div>
       <div className="dm-chat">
-        <div className="dm-msg dm-sent">What is the meaning of suffering?</div>
+        <div className="dm-msg dm-sent">
+          <div className="dm-bubble">What is the meaning of suffering?</div>
+        </div>
         <div className="dm-msg dm-recv">
-          <div className="dm-avatar">✦</div>
+          <div className="dm-msg-avatar-icon">✦</div>
           <div className="dm-bubble">Suffering is not punishment, my child. It is the soil in which compassion grows.</div>
         </div>
-        <div className="dm-msg dm-sent">Why does it have to hurt?</div>
+        <div className="dm-msg dm-sent">
+          <div className="dm-bubble">Why does it have to hurt?</div>
+        </div>
         <div className="dm-msg dm-recv">
-          <div className="dm-avatar">✦</div>
+          <div className="dm-msg-avatar-icon">✦</div>
           <div className="dm-bubble">Because the heart that cannot break is a heart that cannot love.</div>
         </div>
       </div>
-      <div className="dm-input">
-        <span>Ask a question...</span>
-        <span className="dm-send">↑</span>
+      <div className="dm-input-area">
+        <div className="dm-input-wrap">
+          <span className="dm-placeholder">Ask a question...</span>
+        </div>
+        <span className="dm-send-text">Send</span>
       </div>
     </Phone>
   )
 }
 
+/* ── plat, museo, poker, airwave, tunes: unchanged ── */
+
 function PlatDemo() {
   return (
-    <Phone title="Plat">
+    <Phone className="dm-dark">
+      <div className="dp-header">Plat</div>
       <div className="dm-plat">
         <div className="dm-plat-photo">
           <div className="dm-plat-item">鳥の唐揚げ &emsp; ¥880</div>
@@ -107,7 +130,7 @@ function PlatDemo() {
 
 function MuseoDemo() {
   return (
-    <Phone>
+    <Phone className="dm-dark">
       <div className="dm-museo">
         <div className="dm-museo-art">
           <div className="dm-museo-label">Scan artwork</div>
@@ -143,7 +166,8 @@ function PokerDemo() {
 
 function AirwaveDemo() {
   return (
-    <Phone title="Airwave">
+    <Phone className="dm-dark">
+      <div className="dp-header">Airwave</div>
       <div className="dm-aw">
         <div className="dm-aw-card dm-aw-active">
           <div className="dm-aw-topic">The Future of AI</div>
@@ -165,7 +189,8 @@ function AirwaveDemo() {
 
 function TunesDemo() {
   return (
-    <Phone title="Tunes">
+    <Phone className="dm-dark">
+      <div className="dp-header">Tunes</div>
       <div className="dm-tunes">
         <div className="dm-tunes-album" />
         <div className="dm-tunes-song">Midnight Drive</div>
