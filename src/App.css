@@ -486,10 +486,23 @@ body {
 
   .showcase {
     min-height: auto;
-    padding: 2.5rem 0;
+    padding: 1rem 0;
     align-items: flex-start;
     scroll-snap-align: none;
   }
+
+  /* Disable horizontal carousel — stack all projects vertically */
+  .carousel-track {
+    flex-direction: column;
+    transform: none !important;
+  }
+  .carousel-slide {
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 2.5rem;
+  }
+  .carousel-nav { display: none; }
+
   .showcase-inner {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -505,9 +518,6 @@ body {
     display: flex;
     justify-content: center;
   }
-
-  .carousel-nav { margin-top: 1.5rem; }
-  .carousel-arrow { width: 32px; height: 32px; font-size: 0.7rem; }
 
   .about-screen {
     min-height: auto;
