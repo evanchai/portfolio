@@ -5,25 +5,13 @@
   aspect-ratio: 9 / 19;
   margin: 0 auto;
   background: #fff;
-  border-radius: 36px;
-  border: 3px solid #1a1a1a;
+  border-radius: 28px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
   font-family: -apple-system, 'SF Pro', 'Helvetica Neue', sans-serif;
   font-size: 15px;
   display: flex;
   flex-direction: column;
-}
-
-.demo-phone::after {
-  content: '';
-  display: block;
-  width: 100px;
-  height: 4px;
-  background: #ccc;
-  border-radius: 2px;
-  margin: 6px auto 8px;
-  flex-shrink: 0;
 }
 
 /* Dark phone variant (airwave, tunes) */
@@ -31,39 +19,16 @@
   background: #111;
   color: #e5e5e5;
 }
-.dm-dark::after { background: #333; }
 
-.dp-status {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 20px 2px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #262626;
-  flex-shrink: 0;
-}
-.dm-dark .dp-status { color: #888; }
-
-.dp-right { display: flex; gap: 6px; font-size: 9px; }
-
-/* Generic dark header (for plat, airwave, tunes) */
+/* Generic dark header (for airwave, tunes) */
 .dp-header {
   text-align: center;
   font-size: 15px;
   font-weight: 600;
-  padding: 6px 0 10px;
+  padding: 12px 0 10px;
   color: #fff;
   border-bottom: 1px solid #1e1e1e;
   flex-shrink: 0;
-}
-
-.dp-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
 }
 
 /* ══════════════════════════════════════════
@@ -73,7 +38,6 @@
    ══════════════════════════════════════════ */
 
 .dm-aime { background: #fff; color: #262626; }
-.dm-aime .dp-status { color: #262626; }
 
 /* Aime header */
 .dm-aime-header {
@@ -151,8 +115,6 @@
   background: linear-gradient(180deg, #FFFDF5 0%, #FFF8E7 100%);
   color: #3D2E1A;
 }
-.dm-logos .dp-status { color: #3D2E1A; }
-.dm-logos::after { background: #C8A23D; }
 
 /* Logos header — large centered avatar */
 .dm-logos-top {
@@ -301,8 +263,6 @@
   background: #FAFAFA;
   color: #171717;
 }
-.dm-plat .dp-status { color: #171717; }
-.dm-plat::after { background: #d4d4d4; }
 
 .dm-plat-header {
   padding: 14px 16px 10px;
@@ -418,8 +378,6 @@
   background: #fdfdfd;
   color: #171717;
 }
-.dm-museo .dp-status { color: #171717; }
-.dm-museo::after { background: #e5e5e5; }
 
 .dm-museo-header {
   display: flex;
@@ -722,7 +680,7 @@
    ══════════════════════════════════════════ */
 
 @media (max-width: 600px) {
-  .demo-phone { max-width: 100%; border-radius: 24px; }
+  .demo-phone { max-width: 100%; border-radius: 20px; }
   .dm-keys { gap: 10px; padding: 2rem 0.5rem; }
   .dm-keycap { width: 56px; height: 56px; font-size: 16px; }
 }

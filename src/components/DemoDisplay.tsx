@@ -12,14 +12,7 @@ export const DemoDisplay: React.FC<{ slug: string }> = ({ slug }) => {
 function Phone({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={`demo-phone${className ? ` ${className}` : ''}`}>
-      <div className="dp-status">
-        <span>9:41</span>
-        <div className="dp-right">
-          <span>●●●○</span>
-          <span>▊</span>
-        </div>
-      </div>
-      <div className="dp-body">{children}</div>
+      {children}
     </div>
   )
 }
