@@ -1,5 +1,6 @@
 import { Project } from '../data/projects'
 import { useTranslation } from '../i18n/LanguageContext'
+import { DemoDisplay } from './DemoDisplay'
 
 interface Props {
   project: Project
@@ -32,19 +33,7 @@ export const ProductShowcase: React.FC<Props> = ({ project, reverse, alt }) => {
             </a>
           </div>
           <div className="showcase-demo rv">
-            <div className="device-frame">
-              <div className="device-bar">
-                <div className="device-dots">
-                  <span /><span /><span />
-                </div>
-                <div className="device-url">{project.url.replace('https://', '')}</div>
-              </div>
-              <iframe
-                src={project.url}
-                title={project.name}
-                loading="lazy"
-              />
-            </div>
+            <DemoDisplay slug={project.slug} />
           </div>
         </div>
       </div>

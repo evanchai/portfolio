@@ -222,63 +222,6 @@ body {
   transform: translateX(4px);
 }
 
-/* Device frame */
-.device-frame {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(46,43,38,0.06);
-  transition: box-shadow 0.4s ease;
-}
-
-.device-frame:hover {
-  box-shadow: 0 30px 80px rgba(46,43,38,0.1);
-}
-
-.device-bar {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0.8rem;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--line);
-  gap: 0.6rem;
-}
-
-.showcase-alt .device-bar {
-  background: var(--bg3);
-}
-
-.device-dots {
-  display: flex;
-  gap: 0.3rem;
-}
-
-.device-dots span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--line);
-}
-
-.device-url {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--text-3);
-  background: var(--bg);
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  flex: 1;
-  text-align: center;
-}
-
-.device-frame iframe {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  border: none;
-  display: block;
-}
-
 /* ── About Screen ── */
 .about-screen {
   min-height: 100vh;
