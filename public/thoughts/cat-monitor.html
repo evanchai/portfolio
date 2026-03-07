@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="用树莓派 AI 摄像头（IMX500）搭建边缘 AI 猫咪沙发警报系统：从硬件到全栈的完整记录。" />
+  <title>Edge AI Pet Monitor — Ning</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,200;1,9..144,300;1,9..144,400&family=Noto+Sans+SC:wght@200;300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f0ebe4; --bg2: #e7e0d6; --card: #f6f2ec;
+      --text: #2e2b26; --text-2: #6d665c; --text-3: #a69e94;
+      --olive: #5e7050; --olive-light: #7a9469; --olive-bg: rgba(94,112,80,0.07);
+      --line: #d4ccc2; --coral: #ff4d6a; --coral-bg: rgba(255,77,106,0.07);
+      --serif: 'Fraunces', 'Noto Sans SC', 'PingFang SC', sans-serif;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+    }
+    html { height: 100%; scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.9; -webkit-font-smoothing: antialiased; min-height: 100%; }
+    ::selection { background: var(--olive); color: #fff; }
+    .page { max-width: 720px; margin: 0 auto; padding: 0 2rem; }
+
+    .back-link { display: flex; justify-content: flex-end; padding: 2rem 0 0; }
+    .back-link a { font-family: var(--mono); font-size: 0.7rem; color: var(--text-3); text-decoration: none; letter-spacing: 0.05em; transition: color 0.3s; }
+    .back-link a:hover { color: var(--olive); }
+
+    .article-header { padding: 3rem 0 2rem; border-bottom: 1px solid var(--line); margin-bottom: 3rem; }
+    .article-meta { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-3); margin-bottom: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .article-header h1 { font-family: var(--serif); font-weight: 200; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 1.2rem; }
+    .article-header h1 em { font-style: italic; font-weight: 300; color: var(--olive); }
+    .article-lead { font-family: var(--serif); font-size: 1.15rem; font-weight: 300; line-height: 1.8; color: var(--text-2); max-width: 56ch; }
+    .article-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .article-tag { font-family: var(--mono); font-size: 0.6rem; color: var(--olive); letter-spacing: 0.04em; }
+
+    .toc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.8rem 2rem; margin-bottom: 3rem; }
+    .toc-title { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-3); margin-bottom: 1rem; }
+    .toc ol { list-style: none; counter-reset: toc; }
+    .toc li { counter-increment: toc; padding: 0.2rem 0; }
+    .toc li::before { content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-size: 0.65rem; color: var(--text-3); margin-right: 0.8rem; }
+    .toc a { font-family: var(--serif); font-size: 0.95rem; font-weight: 300; color: var(--text); text-decoration: none; transition: color 0.3s; }
+    .toc a:hover { color: var(--olive); }
+
+    .article-body h2 { font-family: var(--serif); font-weight: 300; font-size: 1.7rem; line-height: 1.3; margin: 3.5rem 0 1rem; padding-top: 1rem; }
+    .article-body h2 em { font-style: italic; color: var(--olive); }
+    .article-body h3 { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; margin: 2.5rem 0 0.8rem; }
+    .article-body p { margin-bottom: 1.2rem; color: var(--text-2); }
+    .article-body strong { color: var(--text); font-weight: 500; }
+    .article-body a { color: var(--olive); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; transition: text-decoration-color 0.3s; }
+    .article-body a:hover { text-decoration-color: var(--olive); }
+    .article-body code { font-family: var(--mono); font-size: 0.82em; background: var(--bg2); border-radius: 4px; padding: 0.15em 0.45em; }
+    .article-body ol, .article-body ul { margin: 0.8rem 0 1.5rem 1.5rem; color: var(--text-2); }
+    .article-body li { margin-bottom: 0.4rem; padding-left: 0.3rem; }
+
+    .code-block { background: #2e2b26; color: #e8e0d6; border-radius: 12px; padding: 1.4rem 1.6rem; font-family: var(--mono); font-size: 0.72rem; line-height: 1.9; overflow-x: auto; margin: 1.5rem 0 2rem; }
+    .code-block .cm { color: #7a7568; } .code-block .kw { color: #a3c486; } .code-block .str { color: #d4a96a; }
+    .code-block .fn { color: #88b4d4; } .code-block .tp { color: #c4a3ff; } .code-block .coral { color: #ffa3b3; }
+
+    .callout { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--olive); border-radius: 0 12px 12px 0; padding: 1.2rem 1.4rem; margin: 1.5rem 0 2rem; font-size: 0.88rem; color: var(--text-2); line-height: 1.8; }
+    .callout.coral { border-left-color: var(--coral); }
+    .callout b { color: var(--olive); } .callout.coral b { color: var(--coral); }
+
+    .diagram { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.8rem; margin: 1.5rem 0 2rem; font-family: var(--mono); font-size: 0.72rem; line-height: 1.8; overflow-x: auto; white-space: pre; color: var(--text-2); }
+    .diagram .hl { color: var(--olive); font-weight: 700; } .diagram .dim { color: var(--text-3); }
+
+    .article-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.82rem; }
+    .article-table th { font-family: var(--serif); font-weight: 400; font-size: 0.9rem; text-align: left; padding: 1rem; border-bottom: 2px solid var(--line); }
+    .article-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--line); color: var(--text-2); line-height: 1.7; vertical-align: top; }
+    .article-table tr:hover td { background: var(--olive-bg); }
+    .article-table .win { color: var(--olive); font-weight: 700; } .article-table .lose { color: var(--text-3); }
+
+    .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0 2rem; }
+    .insight-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.4rem 1.5rem; transition: all 0.35s; }
+    .insight-card:hover { transform: translateY(-3px); border-color: var(--olive-light); box-shadow: 0 12px 36px rgba(46,43,38,0.05); }
+    .insight-card h4 { font-family: var(--serif); font-weight: 400; font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .insight-card p { font-size: 0.78rem; color: var(--text-2); line-height: 1.8; margin: 0; }
+
+    .step-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0 2rem; }
+    .step-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.4rem 1.5rem; transition: all 0.35s; }
+    .step-card:hover { transform: translateY(-3px); border-color: var(--olive-light); box-shadow: 0 12px 36px rgba(46,43,38,0.05); }
+    .step-num { font-family: var(--mono); font-size: 0.6rem; color: var(--olive); letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+    .step-card h4 { font-family: var(--serif); font-weight: 400; font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .step-card p { font-size: 0.78rem; color: var(--text-2); line-height: 1.7; margin: 0; }
+
+    .section-divider { border: none; border-top: 1px solid var(--line); margin: 3rem 0; }
+
+    .page-footer { border-top: 1px solid var(--line); padding: 1.5rem 0 3rem; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.62rem; color: var(--text-3); letter-spacing: 0.04em; margin-top: 4rem; }
+    .page-footer .made { display: flex; align-items: center; gap: 0.5rem; }
+    .page-footer .heart { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--olive); }
+
+    /* ── Language Toggle ── */
+    .lang-toggle { position: fixed; top: 2rem; right: 2rem; font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.4rem 1rem; border: 1px solid var(--line); border-radius: 100px; background: var(--card); color: var(--text-2); cursor: pointer; transition: all 0.3s; z-index: 50; }
+    .lang-toggle:hover { border-color: var(--olive); color: var(--olive); }
+    .en { display: none; }
+    html.lang-en .zh { display: none; }
+    html.lang-en .en { display: revert; }
+
+    .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .rv.v { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 600px) {
+      .page { padding: 0 1.2rem; }
+      .article-header { padding: 2rem 0 1.5rem; margin-bottom: 2rem; }
+      .article-header h1 { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+      .article-lead { font-size: 1rem; }
+      .article-body h2 { font-size: 1.4rem; margin-top: 2.5rem; }
+      .step-grid, .insight-grid { grid-template-columns: 1fr; }
+      .article-table { font-size: 0.72rem; }
+      .article-table th, .article-table td { padding: 0.5rem 0.6rem; }
+      .page-footer { flex-direction: column; gap: 0.5rem; }
+      .toc { padding: 1.4rem 1.5rem; }
+      .lang-toggle { top: 1rem; right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="back-link"><a href="/thoughts">&larr; thoughts</a></div>
+  <button class="lang-toggle" id="langToggle">EN</button>
+
+  <header class="article-header rv">
+    <div class="article-meta"><span>Mar 2025</span><span>Ning</span><span>~12 min</span></div>
+    <h1 class="zh">边缘 AI 宠物监控：<br>用树莓派 AI 摄像头打造<em>猫咪沙发警报</em>系统</h1>
+    <h1 class="en">Edge AI Pet Monitor:<br>Building a Cat-on-Sofa <em>Alert System</em> with Raspberry Pi AI Camera</h1>
+    <p class="article-lead zh">不靠云端 GPU、不靠模型训练。一个 IMX500 芯片做边缘推理，一个 Gemini 做精细判断，一个 Redis 做状态中继——从硬件到全栈，搭建一个实时猫咪监控系统。</p>
+    <p class="article-lead en">No cloud GPU, no model training. An IMX500 chip for edge inference, Gemini for fine classification, Redis for state relay — from hardware to full-stack, building a real-time cat monitoring system.</p>
+    <div class="article-tags">
+      <span class="article-tag">#ai</span><span class="article-tag">#edge-computing</span><span class="article-tag">#iot</span><span class="article-tag">#raspberry-pi</span><span class="article-tag">#vibe-coding</span>
+    </div>
+  </header>
+
+  <nav class="toc rv">
+    <div class="toc-title">Table of Contents</div>
+    <ol class="zh">
+      <li><a href="#why-edge">为什么用边缘 AI</a></li>
+      <li><a href="#two-stage">两级检测架构</a></li>
+      <li><a href="#compression">图像压缩的三层设计</a></li>
+      <li><a href="#pipeline">实时数据流</a></li>
+      <li><a href="#tuning">摄像头调参实录</a></li>
+      <li><a href="#model-upgrade">模型升级：nanodet &rarr; EfficientDet</a></li>
+      <li><a href="#tradeoffs">Trade-offs</a></li>
+      <li><a href="#conclusion">总结</a></li>
+    </ol>
+    <ol class="en">
+      <li><a href="#why-edge">Why Edge AI</a></li>
+      <li><a href="#two-stage">Two-Stage Detection</a></li>
+      <li><a href="#compression">Three-Tier Image Compression</a></li>
+      <li><a href="#pipeline">Real-Time Data Pipeline</a></li>
+      <li><a href="#tuning">Camera Tuning Journey</a></li>
+      <li><a href="#model-upgrade">Model Upgrade: nanodet &rarr; EfficientDet</a></li>
+      <li><a href="#tradeoffs">Trade-offs</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+    </ol>
+  </nav>
+
+  <article class="article-body">
+
+    <h2 id="why-edge" class="rv zh">为什么用<em>边缘 AI</em></h2>
+    <h2 class="rv en">Why <em>Edge AI</em></h2>
+
+    <p class="rv zh">家里两只猫——萨摩和小白——老是偷偷上沙发。需要实时监控 + 即时告警，但传统方案有明显短板：延迟高、依赖网络、隐私问题。</p>
+    <p class="rv en">Two cats at home — Samo and Xiaobai — keep sneaking onto the sofa. Real-time monitoring plus instant alerts are needed, but the traditional approach has obvious drawbacks: high latency, network dependency, and privacy concerns.</p>
+
+    <p class="rv zh">边缘方案的核心：<strong>IMX500 芯片直接在传感器上跑神经网络</strong>，推理延迟 &lt;100ms，不需要上传原始图像到任何云端。</p>
+    <p class="rv en">The core of the edge approach: <strong>the IMX500 chip runs neural networks directly on the sensor</strong>, with inference latency &lt;100ms, no need to upload raw images to any cloud.</p>
+
+    <div class="diagram rv"><span class="dim zh">传统方案</span><span class="dim en">Traditional</span>
+Camera &rarr; Upload &rarr; Cloud GPU &rarr; Result
+<span class="dim">&darr; latency: 1-5s, network dependent, privacy risk</span>
+
+<span class="hl zh">边缘方案</span><span class="hl en">Edge approach</span>
+Camera + <span class="hl">IMX500</span> &rarr; Local Result &rarr; <span class="dim">Only alerts go to cloud</span>
+<span class="dim">&darr; latency: &lt;100ms, offline capable, images stay local</span></div>
+
+    <hr class="section-divider">
+
+    <h2 id="two-stage" class="rv zh">两级检测<em>架构</em></h2>
+    <h2 class="rv en">Two-Stage <em>Detection</em></h2>
+
+    <p class="rv zh">单靠边缘芯片的检测精度有限，单靠云端 AI 又太慢太贵。解决方案：两级级联，各司其职。</p>
+    <p class="rv en">Edge chip detection alone lacks precision. Cloud AI alone is too slow and expensive. The solution: a two-stage cascade, each doing what it does best.</p>
+
+    <h3 class="rv zh">第一级：IMX500 上的 EfficientDet Lite0</h3>
+    <h3 class="rv en">Stage 1: EfficientDet Lite0 on IMX500</h3>
+
+    <ul class="rv zh">
+      <li><strong>在芯片上运行</strong>，零延迟，低功耗（&lt;5W 整机）</li>
+      <li>输出：bounding boxes, confidence scores, class IDs（COCO 80 类，cat=15, dog=16）</li>
+      <li>阈值设为 <code>0.3</code>——偏低，宁可误报不漏报</li>
+      <li>同时检测猫和狗，因为边缘模型无法区分具体是哪只</li>
+    </ul>
+    <ul class="rv en">
+      <li><strong>Runs on-chip</strong>, zero latency, low power (&lt;5W total system)</li>
+      <li>Outputs: bounding boxes, confidence scores, class IDs (COCO 80 classes, cat=15, dog=16)</li>
+      <li>Threshold set to <code>0.3</code> — intentionally low, prefer false positives over missed detections</li>
+      <li>Detects both cats and dogs, since the edge model can't distinguish which specific pet</li>
+    </ul>
+
+    <h3 class="rv zh">第二级：Gemini 2.5 Flash 视觉分析</h3>
+    <h3 class="rv en">Stage 2: Gemini 2.5 Flash Visual Analysis</h3>
+
+    <ul class="rv zh">
+      <li>只在第一级触发时调用（节省 API 调用）</li>
+      <li>输入：12MP 高清照片</li>
+      <li>输出：是否在沙发上 + 哪只猫 + 在做什么</li>
+      <li>5 分钟冷却期，避免重复调用</li>
+    </ul>
+    <ul class="rv en">
+      <li>Only called when Stage 1 triggers (saves API calls)</li>
+      <li>Input: 12MP high-resolution photo</li>
+      <li>Output: on sofa or not + which cat + what it's doing</li>
+      <li>5-minute cooldown to avoid redundant calls</li>
+    </ul>
+
+    <div class="code-block rv"><span class="cm">// Gemini prompt format</span>
+
+<span class="kw">SYSTEM:</span> You are analyzing a photo from a pet monitoring camera.
+Determine if a cat or dog is on the sofa/couch.
+
+<span class="kw">Known pets:</span>
+  - <span class="str">"Samo"</span>: orange tabby cat
+  - <span class="str">"Xiaobai"</span>: white cat
+
+<span class="kw">Respond in this exact format:</span>
+  <span class="fn">YES</span>|<span class="str">cat_name</span>|<span class="str">description of what the pet is doing</span>
+  <span class="fn">NO</span>|<span class="str">none</span>|<span class="str">description of scene</span>
+
+<span class="cm">// Example output:</span>
+<span class="fn">YES</span>|<span class="str">Samo</span>|<span class="str">Orange tabby curled up sleeping on the left cushion</span></div>
+
+    <div class="callout rv">
+      <b class="zh">为什么不直接用 Gemini 做检测？</b><b class="en">Why not use Gemini directly for detection?</b>
+      <span class="zh">Gemini 需要 1-3s 响应，而且有 API 限额（免费 10 RPM）。IMX500 可以每秒扫描 2 次，零成本。边缘粗筛 + 云端精分 = 最优解。</span>
+      <span class="en">Gemini takes 1-3s to respond and has API rate limits (free tier: 10 RPM). The IMX500 scans twice per second at zero cost. Edge coarse filter + cloud fine classification = optimal solution.</span>
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="compression" class="rv zh">图像压缩的三层<em>设计</em></h2>
+    <h2 class="rv en">Three-Tier Image <em>Compression</em></h2>
+
+    <p class="rv zh">不同场景对图片质量和大小的需求完全不同。一刀切要么太大要么太糊。</p>
+    <p class="rv en">Different scenarios have completely different requirements for image quality and size. One size fits all means either too large or too blurry.</p>
+
+    <div class="insight-grid zh">
+      <div class="insight-card rv">
+        <h4>原始拍摄</h4>
+        <p>12MP (4056&times;3040), ~3-5MB。通过 ISP pipeline 的 <code>capture_file</code> 获取。用于 Discord 告警时直接上传高清原图。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>实时快照</h4>
+        <p>960px, quality 65, ~60KB。每秒推送到 Redis，供 Dashboard 实时预览。10 秒 TTL 自动过期。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>事件缩略图</h4>
+        <p>800px, quality 70, ~60-80KB。存储在事件列表中，平衡清晰度和存储成本。最多保留 20 条。</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Discord 告警</h4>
+        <p>原始高清图直接上传到 Discord webhook。猫在沙发上的证据必须高清——这是给人看的。</p>
+      </div>
+    </div>
+    <div class="insight-grid en">
+      <div class="insight-card rv">
+        <h4>Raw Capture</h4>
+        <p>12MP (4056&times;3040), ~3-5MB. Captured via ISP pipeline's <code>capture_file</code>. Uploaded directly to Discord alerts in full resolution.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Live Snapshot</h4>
+        <p>960px, quality 65, ~60KB. Pushed to Redis every second for Dashboard live preview. 10-second TTL auto-expires.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Event Thumbnail</h4>
+        <p>800px, quality 70, ~60-80KB. Stored in event list, balancing clarity and storage cost. Max 20 events retained.</p>
+      </div>
+      <div class="insight-card rv">
+        <h4>Discord Alert</h4>
+        <p>Original hi-res image uploaded directly to Discord webhook. Evidence of cat-on-sofa must be crystal clear — it's for human eyes.</p>
+      </div>
+    </div>
+
+    <div class="callout coral rv">
+      <b class="zh">踩坑：</b><b class="en">Pitfall:</b>
+      <span class="zh">最初事件图没压缩，每张 2.4MB base64，20 条事件 = 48MB。Vercel 函数直接超时。压缩到 480px/q50 解决了存储问题，但图太糊看不清是哪只猫。最终平衡在 800px/q70，~70KB/张。</span>
+      <span class="en">Initially event images weren't compressed — each was 2.4MB base64, 20 events = 48MB. Vercel functions just timed out. Compressing to 480px/q50 fixed storage but images were too blurry to tell which cat. Final balance: 800px/q70, ~70KB each.</span>
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="pipeline" class="rv zh">实时<em>数据流</em></h2>
+    <h2 class="rv en">Real-Time <em>Data Pipeline</em></h2>
+
+    <p class="rv zh">从树莓派到浏览器，数据流经三个节点。Redis 是核心中继。</p>
+    <p class="rv en">From Raspberry Pi to browser, data flows through three nodes. Redis is the core relay.</p>
+
+    <div class="diagram rv"><span class="hl zh">完整数据流</span><span class="hl en">Full pipeline</span>
+
+Pi (<span class="hl">monitor.py</span>) &rarr; Redis (<span class="hl">3 keys</span>) &rarr; Vercel API &rarr; React Dashboard
+
+<span class="dim">Redis key design:</span>
+
+<span class="hl">cat:heartbeat</span>  SET, TTL 120s
+  &rarr; status, scan count, detection count, logs
+
+<span class="hl">cat:snapshot</span>   SET, TTL 10s
+  &rarr; base64 image, updated every second
+
+<span class="hl">cat:events</span>    LIST, max 20 items
+  &rarr; detection events + pipeline steps</div>
+
+    <div class="callout rv">
+      <b class="zh">为什么用 Redis TTL？</b><b class="en">Why Redis TTL?</b>
+      <span class="zh">如果 Pi 断电，<code>cat:snapshot</code> 10 秒后自动过期，Dashboard 自动显示 "Offline"。<code>cat:heartbeat</code> 120 秒后过期。无需额外的离线检测逻辑——TTL 本身就是心跳机制。</span>
+      <span class="en">If the Pi loses power, <code>cat:snapshot</code> auto-expires after 10 seconds and the Dashboard shows "Offline". <code>cat:heartbeat</code> expires after 120 seconds. No separate offline detection logic needed — TTL itself is the heartbeat mechanism.</span>
+    </div>
+
+    <h3 class="rv zh">Upstash Redis REST API 的两种用法</h3>
+    <h3 class="rv en">Two Ways to Use Upstash Redis REST API</h3>
+
+    <p class="rv zh">Pi 端写入大 payload 用 POST body，Vercel 端读取用 GET path：</p>
+    <p class="rv en">Pi-side writes large payloads via POST body; Vercel-side reads via GET path:</p>
+
+    <div class="code-block rv"><span class="cm">// Pi side — writing large payloads (base64 images)</span>
+<span class="fn">POST</span> <span class="str">https://redis-url/</span>
+<span class="kw">Body:</span> [<span class="str">"SET"</span>, <span class="str">"cat:snapshot"</span>, <span class="str">"&lt;base64_data&gt;"</span>, <span class="str">"EX"</span>, <span class="str">"10"</span>]
+
+<span class="cm">// Vercel side — reading events</span>
+<span class="fn">GET</span> <span class="str">https://redis-url/LRANGE/cat:events/0/19</span>
+
+<span class="cm">// Vercel side — reading heartbeat</span>
+<span class="fn">GET</span> <span class="str">https://redis-url/GET/cat:heartbeat</span></div>
+
+    <div class="callout coral rv">
+      <b class="zh">踩坑：</b><b class="en">Pitfall:</b>
+      <span class="zh">POST 方式的 LRANGE 对大 payload 返回空结果，GET path 方式正常。怀疑是 Upstash REST 序列化的 bug。最终规则：写用 POST body，读用 GET path。</span>
+      <span class="en">POST-based LRANGE returns empty results for large payloads, while GET path works fine. Suspected Upstash REST serialization bug. Final rule: write with POST body, read with GET path.</span>
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="tuning" class="rv zh">摄像头调参<em>实录</em></h2>
+    <h2 class="rv en">Camera Tuning <em>Journey</em></h2>
+
+    <p class="rv zh">室内暖光环境下的摄像头参数调优，比想象中复杂得多。以下是完整的调参过程：</p>
+    <p class="rv en">Camera parameter tuning under indoor warm lighting turned out to be far more complex than expected. Here's the full tuning journey:</p>
+
+    <table class="article-table rv zh">
+      <thead><tr><th>阶段</th><th>问题</th><th>调整</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td>初始</td><td>图像偏黄</td><td>AwbMode=Tungsten, Sat=1.5</td><td class="lose">更黄了</td></tr>
+        <tr><td>Round 2</td><td>太暗</td><td>EV=0.5, Gain=3.0</td><td class="lose">不够亮</td></tr>
+        <tr><td>Round 3</td><td>还是暗</td><td>EV=1.0, Gain=4.0</td><td class="lose">亮度 OK 但偏黄</td></tr>
+        <tr><td>Round 4</td><td>偏冷</td><td>AwbMode=Auto, Sat=0.8</td><td class="lose">太冷</td></tr>
+        <tr><td>Final</td><td>平衡</td><td>AwbMode=Auto, Sat=1.0, EV=0.0, Gain=2.0, 50ms</td><td class="win">Perfect</td></tr>
+      </tbody>
+    </table>
+    <table class="article-table rv en">
+      <thead><tr><th>Stage</th><th>Problem</th><th>Adjustment</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Initial</td><td>Image too yellow</td><td>AwbMode=Tungsten, Sat=1.5</td><td class="lose">Even more yellow</td></tr>
+        <tr><td>Round 2</td><td>Too dark</td><td>EV=0.5, Gain=3.0</td><td class="lose">Still not bright enough</td></tr>
+        <tr><td>Round 3</td><td>Still dark</td><td>EV=1.0, Gain=4.0</td><td class="lose">Brightness OK but yellow</td></tr>
+        <tr><td>Round 4</td><td>Too cold</td><td>AwbMode=Auto, Sat=0.8</td><td class="lose">Too cold/blue</td></tr>
+        <tr><td>Final</td><td>Balanced</td><td>AwbMode=Auto, Sat=1.0, EV=0.0, Gain=2.0, 50ms</td><td class="win">Perfect</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout rv">
+      <b class="zh">经验：</b><b class="en">Insight:</b>
+      <span class="zh">室内暖光环境下，Auto AWB + 中性参数是最安全的选择。手动设白平衡（Tungsten/Daylight）在光线变化时会翻车——白天和晚上的色温完全不同，Auto 能自适应。</span>
+      <span class="en">Under indoor warm lighting, Auto AWB + neutral parameters is the safest choice. Manual white balance (Tungsten/Daylight) breaks when lighting changes — daytime and nighttime color temperatures are completely different, Auto adapts.</span>
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="model-upgrade" class="rv zh">模型升级：nanodet &rarr; <em>EfficientDet</em></h2>
+    <h2 class="rv en">Model Upgrade: nanodet &rarr; <em>EfficientDet</em></h2>
+
+    <p class="rv zh">最初使用 nanodet，cat class 的置信度只有 0.15-0.27，最高也才 0.35。阈值从 0.4 降到 0.3 勉强能用，但误报也增加了。</p>
+    <p class="rv en">Initially used nanodet, but cat class confidence was only 0.15-0.27, maxing out at 0.35. Lowering the threshold from 0.4 to 0.3 barely worked, but false positives also increased.</p>
+
+    <p class="rv zh">IMX500 上可用的 <code>_pp</code>（post-processed）检测模型对比：</p>
+    <p class="rv en">Available <code>_pp</code> (post-processed) detection models on IMX500:</p>
+
+    <table class="article-table rv">
+      <thead><tr><th>Model</th><th>COCO mAP</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>nanodet_plus_416x416</td><td class="lose">~20</td><td class="zh">cat 置信度太低</td><td class="en">Cat confidence too low</td></tr>
+        <tr><td><strong>efficientdet_lite0</strong></td><td class="win">~26</td><td class="zh">最终选择，精度最高</td><td class="en">Final choice, highest accuracy</td></tr>
+        <tr><td>ssd_mobilenetv2_fpnlite_320x320</td><td>~22</td><td class="zh">中规中矩</td><td class="en">Middle ground</td></tr>
+      </tbody>
+    </table>
+
+    <p class="rv zh">切换只需改一行模型路径，输出格式完全兼容（boxes/scores/classes）。EfficientDet 的 cat 置信度稳定在 0.4-0.7，远好于 nanodet。</p>
+    <p class="rv en">Switching requires changing just one model path line — output format is fully compatible (boxes/scores/classes). EfficientDet's cat confidence is stable at 0.4-0.7, far better than nanodet.</p>
+
+    <div class="callout rv">
+      <b class="zh">关于 _pp 后缀：</b><b class="en">About the _pp suffix:</b>
+      <span class="zh">IMX500 的 <code>_pp</code> 后缀 = post-processed，模型输出已经是 boxes/scores/classes，不需要自己做 NMS（Non-Maximum Suppression）。直接拿来用，大幅简化代码。</span>
+      <span class="en">IMX500's <code>_pp</code> suffix = post-processed. Model output is already boxes/scores/classes — no need to implement your own NMS (Non-Maximum Suppression). Just use it directly, massively simplifying the code.</span>
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="tradeoffs" class="rv">Trade-offs</h2>
+
+    <p class="rv zh">三种方案的诚实对比：</p>
+    <p class="rv en">An honest comparison of three approaches:</p>
+
+    <table class="article-table rv zh">
+      <thead><tr><th>维度</th><th>Edge (IMX500)</th><th>Cloud API</th><th>Local GPU</th></tr></thead>
+      <tbody>
+        <tr><td>延迟</td><td class="win">&lt;100ms</td><td class="lose">1-3s</td><td>&lt;100ms</td></tr>
+        <tr><td>成本</td><td class="win">$0/检测</td><td class="lose">$0.001+/次</td><td>硬件成本高</td></tr>
+        <tr><td>隐私</td><td class="win">图片不离开本地</td><td class="lose">上传到云端</td><td>本地</td></tr>
+        <tr><td>精度</td><td class="lose">一般 (mAP ~26)</td><td class="win">最高</td><td>高</td></tr>
+        <tr><td>功耗</td><td class="win">&lt;5W</td><td>N/A</td><td class="lose">100W+</td></tr>
+        <tr><td>模型灵活性</td><td class="lose">受限于芯片</td><td class="win">任意模型</td><td>任意模型</td></tr>
+      </tbody>
+    </table>
+    <table class="article-table rv en">
+      <thead><tr><th>Dimension</th><th>Edge (IMX500)</th><th>Cloud API</th><th>Local GPU</th></tr></thead>
+      <tbody>
+        <tr><td>Latency</td><td class="win">&lt;100ms</td><td class="lose">1-3s</td><td>&lt;100ms</td></tr>
+        <tr><td>Cost</td><td class="win">$0/detection</td><td class="lose">$0.001+/call</td><td>High hardware cost</td></tr>
+        <tr><td>Privacy</td><td class="win">Images stay local</td><td class="lose">Uploaded to cloud</td><td>Local</td></tr>
+        <tr><td>Accuracy</td><td class="lose">Fair (mAP ~26)</td><td class="win">Highest</td><td>High</td></tr>
+        <tr><td>Power</td><td class="win">&lt;5W</td><td>N/A</td><td class="lose">100W+</td></tr>
+        <tr><td>Model flexibility</td><td class="lose">Limited by chip</td><td class="win">Any model</td><td>Any model</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout coral rv">
+      <b class="zh">结论：</b><b class="en">Verdict:</b>
+      <span class="zh">边缘推理做粗筛 + 云端 AI 做精分，是个人 IoT 项目的最优解。IMX500 的零成本检测解决了"要不要调 API"的犹豫——反正本地跑不花钱，检测到了再花钱问 Gemini。</span>
+      <span class="en">Edge inference for coarse filtering + cloud AI for fine classification is the optimal solution for personal IoT projects. IMX500's zero-cost detection eliminates the "should I call the API?" hesitation — local inference is free, only spend money asking Gemini when something is actually detected.</span>
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="conclusion" class="rv zh"><em>总结</em></h2>
+    <h2 class="rv en"><em>Conclusion</em></h2>
+
+    <div class="diagram rv"><span class="hl zh">最优架构</span><span class="hl en">Optimal architecture</span>
+
+Edge detection            Cloud AI
+<span class="dim">(free, fast, always-on)</span>   <span class="dim">(smart, expensive, on-demand)</span>
+        \                   /
+         \                 /
+          &rarr;  <span class="hl">Best of both worlds</span>  &larr;
+              |
+     Real-time monitoring
+     + Intelligent alerts</div>
+
+    <p class="rv zh">这个项目的核心洞察：<strong>不要在边缘和云端之间二选一，而是让它们各做最擅长的事。</strong></p>
+    <p class="rv en">The core insight of this project: <strong>don't choose between edge and cloud — let each do what it does best.</strong></p>
+
+    <p class="rv zh">IMX500 以零成本、每秒两次的频率扫描画面。99% 的时间什么都没有，芯片静默运行。一旦检测到猫，才唤醒 Gemini 做精细判断——是哪只猫、在不在沙发上、在做什么。整个系统功耗不到 5W，一根 USB-C 线供电。</p>
+    <p class="rv en">The IMX500 scans the frame at zero cost, twice per second. 99% of the time there's nothing, and the chip runs silently. Only when a cat is detected does it wake up Gemini for fine classification — which cat, whether it's on the sofa, what it's doing. The entire system draws less than 5W, powered by a single USB-C cable.</p>
+
+    <p class="rv zh">从硬件调参到全栈数据流，从图像压缩到模型选型——一个看似简单的"检测猫上沙发"需求，最终变成了一次从边缘到云端的完整工程实践。</p>
+    <p class="rv en">From hardware tuning to full-stack data pipelines, from image compression to model selection — a seemingly simple "detect cat on sofa" requirement turned into a complete engineering journey from edge to cloud.</p>
+
+    <div class="callout rv">
+      <b>Try it:</b> <a href="https://cat.ning.codes" target="_blank">cat.ning.codes</a>
+    </div>
+
+  </article>
+
+  <footer class="page-footer">
+    <span>&copy; 2025 Ning</span>
+    <span class="made"><span class="heart"></span> vibed into existence</span>
+  </footer>
+</div>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('v'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+// Language toggle
+const toggle = document.getElementById('langToggle');
+let lang = 'zh';
+toggle.addEventListener('click', function() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  document.documentElement.classList.toggle('lang-en', lang === 'en');
+  toggle.textContent = lang === 'zh' ? 'EN' : '中文';
+});
+</script>
+</body>
+</html>
