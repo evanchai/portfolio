@@ -62,7 +62,7 @@ interface Thought {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "https://ning.codes");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -72,6 +72,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // GET — list all thoughts
   if (req.method === "GET") {
+    if (!checkAuth(req)) return res.status(401).json({ error: "Unauthorized" });
+
     const keys = await db.keys("thought:*");
     if (keys.length === 0) return res.json([]);
 
