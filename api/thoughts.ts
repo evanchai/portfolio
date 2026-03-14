@@ -70,10 +70,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const db = getRedis();
 
-  // GET — list all thoughts
+  // GET — list all thoughts (public)
   if (req.method === "GET") {
-    if (!checkAuth(req)) return res.status(401).json({ error: "Unauthorized" });
-
     const keys = await db.keys("thought:*");
     if (keys.length === 0) return res.json([]);
 
