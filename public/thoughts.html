@@ -602,7 +602,7 @@
 
     async function loadThoughts() {
       try {
-        const res = await fetch('/api/thoughts');
+        const res = await fetch('/api/thoughts', { headers: authHeaders() });
         const data = await res.json();
         loading.remove();
 
